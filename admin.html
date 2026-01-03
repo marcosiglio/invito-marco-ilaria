@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin RSVP — Marco & Ilaria</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:20px}
+    .box{max-width:1100px;margin:0 auto}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th,td{border-bottom:1px solid #ddd;padding:10px;vertical-align:top;text-align:left}
+    th{background:#f7f7f7}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .pill{padding:8px 10px;border:1px solid #ddd;border-radius:999px;background:#fff}
+    .muted{opacity:.75}
+    button{padding:10px 12px;border-radius:10px;border:1px solid #ccc;background:#fff;cursor:pointer;font-weight:700}
+    pre{white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Admin — RSVP</h1>
+    <p class="muted">Inserisci la chiave admin per vedere le conferme.</p>
+
+    <div class="row">
+      <button id="load">Carica</button>
+      <button id="export">Esporta JSON</button>
+      <span id="status" class="muted"></span>
+    </div>
+
+    <div id="totals" class="row" style="margin-top:12px"></div>
+
+    <table id="tbl" style="display:none">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Nome</th>
+          <th>Partecipa</th>
+          <th>Persone</th>
+          <th>Nominativi</th>
+          <th>Contatto</th>
+          <th>Messaggio</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <pre id="raw" style="display:none"></pre>
+  </div>
+
+  <script>
+    let ADMIN_KEY = "";
+
+    function askKey(){
+      ADMIN_KEY = prompt("Chiave admin:") || "";
+      return ADMIN_KEY.trim().length > 0;
+    }
+
+    async function fetchData(){
+      const status = document.getElementById("status");
+      status.textContent = "Carico…";
+
+      const res = await fetch(`/.netlify/functions/rsvp?key=${encodeURIComponent(ADMIN_KEY)}`);
+      const json = await res.json().catch(()=>null);
+
+      if(!res.ok || !json?.ok){
+        status.textContent = "Errore: chiave errata o funzione non pronta.";
+        throw new Error("unauthorized");
+      }
+
+      status.textContent = "OK";
+      return json;
+    }
+
+    function renderTotals(t){
+      const el = document.getElementById("totals");
+      el.innerHTML = "";
+      const items = [
+        ["RSVP Sì", t.rsvp_yes],
+        ["RSVP No", t.rsvp_no],
+        ["Persone Sì", t.persons_yes],
+        ["Persone No", t.persons_no],
+        ["Totale RSVP", t.rsvp_total],
+        ["Totale Persone", t.persons_total]
+      ];
+      for(const [k,v] of items){
+        const d = document.createElement("div");
+        d.className = "pill";
+        d.innerHTML = `<b>${k}:</b>&nbsp;${v}`;
+        el.appendChild(d);
+      }
+    }
+
+    function renderTable(items){
+      const tbl = document.getElementById("tbl");
+      const tb = tbl.querySelector("tbody");
+      tb.innerHTML = "";
+      tbl.style.display = "table";
+
+      const sorted = [...items].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+      for(const r of sorted){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${(r.createdAt||"").replace("T"," ").slice(0,19)}</td>
+          <td><b>${r.nome||""} ${r.cognome||""}</b></td>
+          <td>${r.partecipa||""}</td>
+          <td>${r.numPersone||""}</td>
+          <td><pre style="margin:0">${r.nominativi||""}</pre></td>
+          <td>${r.contatto||""}</td>
+          <td><pre style="margin:0">${r.messaggio||""}</pre></td>
+        `;
+        tb.appendChild(tr);
+      }
+    }
+
+    document.getElementById("load").addEventListener("click", async ()=>{
+      if(!ADMIN_KEY && !askKey()) return;
+      const data = await fetchData();
+      renderTotals(data.totals);
+      renderTable(data.items);
+      window.__LAST = data;
+    });
+
+    document.getElementById("export").addEventListener("click", ()=>{
+      const data = window.__LAST;
+      if(!data) return alert("Prima premi Carica");
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "rsvp-export.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1522 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marco & Ilaria — Invito</title>
+  <meta name="description" content="Invito matrimonio Marco & Ilaria — RSVP" />
+
+  <style>
+    :root{
+      --ivory:#f6f4ec;
+      --ivory2:#fbfaf5;
+      --sage:#7a9b8c;
+      --deep:#46695a;
+      --gold:#c9b37a;
+      --ink:#1f2b26;
+      --card: rgba(255,255,255,.80);
+      --border: rgba(70,105,90,.26);
+      --shadow: 0 18px 45px rgba(0,0,0,.12);
+      --radius: 22px;
+      --ring: rgba(122,155,140,.28);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 50% -10%, rgba(122,155,140,.22), transparent 60%),
+        radial-gradient(900px 560px at 15% 35%, rgba(70,105,90,.12), transparent 65%),
+        radial-gradient(900px 560px at 85% 35%, rgba(70,105,90,.08), transparent 70%),
+        linear-gradient(180deg, var(--ivory2), var(--ivory));
+      min-height:100vh;
+      padding: clamp(14px, 2.5vw, 28px);
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{width:min(1040px, 100%)}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      isolation:isolate;
+      backdrop-filter: blur(10px);
+    }
+
+    .card::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1px 1px at 12% 18%, rgba(70,105,90,.08), transparent 45%),
+        radial-gradient(1px 1px at 85% 32%, rgba(70,105,90,.06), transparent 45%),
+        radial-gradient(1px 1px at 55% 78%, rgba(70,105,90,.06), transparent 45%),
+        radial-gradient(1px 1px at 25% 70%, rgba(70,105,90,.05), transparent 45%);
+      opacity:.55;
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .frame-outer{
+      position:absolute; inset:14px;
+      border-radius: calc(var(--radius) - 6px);
+      border: 1px solid rgba(70,105,90,.22);
+      pointer-events:none;
+      z-index:0;
+    }
+    .frame-inner{
+      position:absolute; inset:28px;
+      border-radius: calc(var(--radius) - 10px);
+      border: 1px solid rgba(70,105,90,.12);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .knot-border{
+      position:absolute;
+      inset: 6px;
+      border-radius: calc(var(--radius) - 2px);
+      pointer-events:none;
+      z-index:0;
+      opacity:.55;
+    }
+    .knot-border::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: inherit;
+      border: 1px solid rgba(70,105,90,.10);
+    }
+    .knot-top, .knot-bottom{
+      position:absolute;
+      left:18px; right:18px;
+      height: 22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 14px;
+      color: rgba(70,105,90,.52);
+      font-family: "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2",system-ui;
+      font-size: 18px;
+      letter-spacing: .22em;
+      text-shadow: 0 8px 18px rgba(0,0,0,.06);
+    }
+    .knot-top{ top: 10px; }
+    .knot-bottom{ bottom: 10px; }
+    .knot-left, .knot-right{
+      position:absolute;
+      top: 44px; bottom: 44px;
+      width: 22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: rgba(70,105,90,.48);
+      font-family: "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2",system-ui;
+      font-size: 18px;
+    }
+    .knot-left{ left: 10px; }
+    .knot-right{ right: 10px; }
+    .knot-left span, .knot-right span{
+      display:inline-block;
+      transform: rotate(90deg);
+      letter-spacing: .22em;
+      white-space:nowrap;
+    }
+    @media (max-width:520px){
+      .knot-top,.knot-bottom{font-size:16px; gap:10px;}
+      .knot-left,.knot-right{font-size:16px;}
+    }
+
+    header{
+      padding: clamp(22px, 3vw, 36px) clamp(16px, 3vw, 30px) 8px;
+      text-align:center;
+      position:relative;
+      z-index:1;
+    }
+    .celtic{
+      font-family: "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2",system-ui;
+      color: var(--deep);
+    }
+    .knotline{
+      display:flex; gap:10px;
+      align-items:center;
+      justify-content:center;
+      letter-spacing:.12em;
+      font-size:18px;
+      opacity:.90;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+
+    .wreath{
+      width:min(560px, 94%);
+      margin: 8px auto 10px;
+      opacity:.96;
+      filter: drop-shadow(0 12px 18px rgba(0,0,0,.10));
+    }
+
+    h1{
+      margin: 6px 0 0;
+      font-size: clamp(34px, 5.6vw, 56px);
+      font-weight: 850;
+      letter-spacing:.02em;
+      color: var(--deep);
+      line-height:1.05;
+    }
+    .subtitle{
+      margin:12px auto 0;
+      max-width: 62ch;
+      font-size: clamp(14px, 1.6vw, 16px);
+      line-height:1.65;
+      opacity:.93;
+    }
+    .details{
+      margin:18px auto 0;
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      font-size: 15px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border:1px solid rgba(70,105,90,.20);
+      border-radius:999px;
+      background: rgba(255,255,255,.62);
+      box-shadow: 0 10px 20px rgba(0,0,0,.06);
+    }
+    .pill .dot{
+      width:8px; height:8px; border-radius:999px;
+      background: linear-gradient(135deg, var(--gold), rgba(201,179,122,.55));
+      box-shadow: 0 0 0 3px rgba(201,179,122,.18);
+    }
+
+    main{
+      padding: 18px clamp(14px, 2.5vw, 22px) 26px;
+      display:grid;
+      grid-template-columns: 1.22fr .78fr;
+      gap:16px;
+      position:relative;
+      z-index:1;
+    }
+    @media (max-width: 880px){
+      main{grid-template-columns: 1fr}
+    }
+
+    .panel{
+      background: rgba(255,255,255,.68);
+      border:1px solid rgba(70,105,90,.14);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .panel h2{
+      margin:0 0 12px;
+      font-size: 18px;
+      color: var(--deep);
+      letter-spacing:.02em;
+    }
+
+    label{
+      display:block;
+      font-size: 13px;
+      margin: 10px 0 6px;
+      opacity:.92;
+    }
+    input, select, textarea{
+      width:100%;
+      padding: 13px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(31,43,38,.18);
+      background: rgba(255,255,255,.92);
+      outline:none;
+      font-size: 14px;
+    }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(122,155,140,.55);
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+    textarea{min-height:110px; resize:vertical}
+
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    @media (max-width: 520px){ .row{grid-template-columns: 1fr} }
+
+    .divider{
+      height:1px;
+      background: rgba(70,105,90,.14);
+      margin: 14px 0 12px;
+    }
+
+    .btn{
+      margin-top: 12px;
+      width:100%;
+      border:none;
+      border-radius: 14px;
+      padding: 13px 14px;
+      background: linear-gradient(135deg, var(--deep), var(--sage));
+      color:#fff;
+      font-weight: 850;
+      letter-spacing:.02em;
+      cursor:pointer;
+      box-shadow: 0 12px 26px rgba(70,105,90,.22);
+    }
+    .btn:active{transform: scale(.99)}
+    .note{
+      font-size: 12.5px;
+      opacity:.85;
+      line-height:1.55;
+      margin: 10px 0 0;
+    }
+
+    .msg{
+      margin-top:12px;
+      padding:10px 12px;
+      border-radius:14px;
+      font-size:13px;
+      display:none;
+    }
+    .ok{background: rgba(122,155,140,.18); border:1px solid rgba(122,155,140,.35)}
+    .err{background: rgba(180,70,70,.12); border:1px solid rgba(180,70,70,.25)}
+
+    .guestGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 560px){
+      .guestGrid{grid-template-columns:1fr}
+    }
+    .guestCard{
+      border:1px solid rgba(70,105,90,.12);
+      border-radius:14px;
+      padding:10px;
+      background: rgba(255,255,255,.72);
+    }
+    .guestCard .small{
+      font-size:12px;
+      opacity:.75;
+      margin-bottom:8px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .guestCard .small::before{
+      content:"☘";
+      font-family: "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2",system-ui;
+      color: var(--gold);
+      opacity:.95;
+    }
+
+    .footer{
+      text-align:center;
+      padding: 0 20px 22px;
+      opacity:.82;
+      font-size: 12px;
+      position:relative;
+      z-index:1;
+    }
+
+    .modal-backdrop{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.38);
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 999;
+    }
+    .modal{
+      width:min(640px, 100%);
+      background: rgba(255,255,255,.94);
+      border:1px solid rgba(70,105,90,.22);
+      border-radius:18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.25);
+      overflow:hidden;
+    }
+    .btn-gold{
+      background: linear-gradient(135deg, var(--gold), rgba(201,179,122,.55));
+      color: #1f2b26;
+    }
+    .btn-ghost{
+      background: rgba(255,255,255,.82);
+      border:1px solid rgba(70,105,90,.22);
+      color: var(--deep);
+      box-shadow:none;
+    }
+
+    .radioDock{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 12px;
+      z-index: 1000;
+      width: min(320px, calc(100vw - 24px));
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(70,105,90,.20);
+      border-radius: 14px;
+      box-shadow: 0 14px 34px rgba(0,0,0,.16);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .radioTop{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 8px 10px;
+    }
+    .radioBrand{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight: 900;
+      color: var(--deep);
+      font-size: 12.5px;
+      line-height:1.1;
+    }
+    .radioBrand .ico{
+      font-family: "Segoe UI Symbol","Apple Symbols","Noto Sans Symbols2",system-ui;
+      color: var(--gold);
+    }
+    .radioControls{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }
+    .rBtn{
+      border: 1px solid rgba(70,105,90,.18);
+      background: rgba(255,255,255,.86);
+      color: var(--deep);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-weight: 800;
+      cursor:pointer;
+      font-size: 12px;
+    }
+    .rBtn:active{transform:scale(.99)}
+    .radioRow{
+      padding: 0 10px 10px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+    }
+    .radioRow select{
+      padding: 8px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(31,43,38,.18);
+      background: rgba(255,255,255,.92);
+      font-size: 13px;
+    }
+    .radioHint{
+      font-size: 11.5px;
+      opacity:.75;
+      line-height:1.25;
+    }
+    .radioHidden{ display:none; }
+
+    .gate{
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background:
+        radial-gradient(900px 560px at 50% 10%, rgba(122,155,140,.24), transparent 60%),
+        linear-gradient(180deg, var(--ivory2), var(--ivory));
+    }
+    .gateCard{
+      width: min(520px, 100%);
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(70,105,90,.22);
+      border-radius: 20px;
+      box-shadow: 0 20px 55px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .gateTop{
+      padding: 18px 18px 0;
+      text-align:center;
+    }
+    .gateTitle{
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--deep);
+      margin: 10px 0 0;
+      letter-spacing:.02em;
+    }
+    .gateSub{
+      margin: 10px auto 0;
+      max-width: 46ch;
+      font-size: 13px;
+      opacity:.85;
+      line-height:1.5;
+    }
+    .gateBody{
+      padding: 14px 18px 18px;
+    }
+    .gateRow{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      margin-top: 12px;
+      align-items: stretch;
+    }
+    .gateRow input{
+      width:100%;
+      min-height: 46px;
+      padding: 12px 12px;
+      border-radius: 14px;
+    }
+    .gateEnter{
+      width:auto !important;
+      min-width: 120px;
+      padding: 12px 16px;
+      margin-top: 0 !important;
+      border-radius: 14px;
+    }
+    @media (max-width:520px){
+      .gateRow{ grid-template-columns: 1fr; }
+      .gateEnter{ width:100% !important; }
+    }
+    .gateMsg{
+      display:none;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+      background: rgba(180,70,70,.12);
+      border: 1px solid rgba(180,70,70,.25);
+    }
+    .gateHint{
+      margin-top: 12px;
+      font-size: 12px;
+      opacity:.75;
+      line-height:1.45;
+      text-align:center;
+    }
+
+    @media (prefers-reduced-motion: no-preference){
+      .entered .card{ animation: cardIn .75s ease-out both; }
+      @keyframes cardIn{
+        from{ opacity:0; transform: translateY(12px) scale(.995); }
+        to{ opacity:1; transform: translateY(0) scale(1); }
+      }
+      .entered .wreath{
+        animation: floatWreath 7.5s ease-in-out infinite;
+        transform-origin: 50% 60%;
+      }
+      @keyframes floatWreath{
+        0%,100%{ transform: translateY(0); }
+        50%{ transform: translateY(-5px); }
+      }
+      .entered h1{ animation: nameIn .95s cubic-bezier(.2,.9,.2,1) both; }
+      @keyframes nameIn{
+        from{ opacity:0; transform: translateY(10px); letter-spacing:.14em; }
+        to{ opacity:1; transform: translateY(0); letter-spacing:.02em; }
+      }
+    }
+
+    .thanks-backdrop{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.50);
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 1100;
+    }
+    .thanksModal{
+      width:min(760px, 100%);
+      background: rgba(255,255,255,.96);
+      border:1px solid rgba(70,105,90,.22);
+      border-radius:18px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+    .thanksHead{
+      padding: 14px 16px 0;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .thanksTitle{
+      font-weight: 950;
+      color: var(--deep);
+      letter-spacing:.02em;
+    }
+    .thanksBody{
+      padding: 12px 16px 8px;
+    }
+    .thanksImgWrap{
+      width:100%;
+      border-radius: 14px;
+      overflow:hidden;
+      border:1px solid rgba(70,105,90,.16);
+      background: rgba(246,244,236,.55);
+    }
+    .thanksImgWrap img{
+      width:100%;
+      height:auto;
+      display:block;
+    }
+    .thanksActions{
+      padding: 0 16px 16px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .btnBig{
+      padding: 15px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 950;
+      letter-spacing:.02em;
+    }
+
+    @media (max-width: 600px){
+      .card{ backdrop-filter: none; }
+      .radioDock{ backdrop-filter: none; }
+      .wreath{ filter: none; }
+      :root{ --shadow: 0 12px 30px rgba(0,0,0,.10); }
+    }
+    @media (max-width: 600px) and (prefers-reduced-motion: no-preference){
+      .entered .wreath{ animation: none; }
+    }
+
+    input:disabled,
+    select:disabled,
+    textarea:disabled,
+    button:disabled{
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .admin-backdrop{
+      display:none;
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+      z-index: 3000;
+    }
+    .adminPanel{
+      width:min(920px, 100%);
+      background: rgba(255,255,255,.96);
+      border:1px solid rgba(70,105,90,.22);
+      border-radius:18px;
+      box-shadow: 0 22px 70px rgba(0,0,0,.32);
+      overflow:hidden;
+    }
+    .adminHead{
+      padding: 14px 16px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border-bottom:1px solid rgba(70,105,90,.12);
+    }
+    .adminTitle{
+      font-weight: 950;
+      color: var(--deep);
+      letter-spacing:.02em;
+    }
+    .adminBody{
+      padding: 12px 16px 16px;
+    }
+    .adminGrid{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width:720px){
+      .adminGrid{ grid-template-columns: 1fr; }
+    }
+    .adminCard{
+      border:1px solid rgba(70,105,90,.14);
+      border-radius: 14px;
+      background: rgba(255,255,255,.78);
+      padding: 12px;
+    }
+    .adminCard b{ color: var(--deep); }
+    .adminList{
+      margin-top:12px;
+      border:1px solid rgba(70,105,90,.14);
+      border-radius: 14px;
+      overflow:hidden;
+      max-height: 44vh;
+      overflow:auto;
+      background: rgba(255,255,255,.78);
+    }
+    .adminRow{
+      padding:10px 12px;
+      border-bottom:1px solid rgba(70,105,90,.10);
+      font-size: 13px;
+      line-height:1.35;
+    }
+    .adminRow:last-child{ border-bottom:none; }
+    .badge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      margin-right:8px;
+      border:1px solid rgba(70,105,90,.18);
+      background: rgba(122,155,140,.12);
+      color: var(--deep);
+    }
+    .badge.no{
+      background: rgba(180,70,70,.10);
+      border-color: rgba(180,70,70,.22);
+      color: #7a2424;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="gate" id="gate">
+    <div class="gateCard">
+      <div class="gateTop">
+        <div class="celtic" aria-hidden="true" style="font-size:18px; opacity:.9; letter-spacing:.18em;">᚛ ☘ ᚜</div>
+        <div class="gateTitle">Benvenuti</div>
+        <div class="gateSub">Per accedere all’invito, inserisci la parola d’ordine.</div>
+      </div>
+      <div class="gateBody">
+        <label for="gateInput">Parola d’ordine</label>
+        <div class="gateRow">
+          <input id="gateInput" placeholder="Scrivi qui…" autocomplete="off" autofocus />
+          <button class="btn gateEnter" type="button" id="gateBtn">Entra</button>
+        </div>
+        <div class="gateMsg" id="gateMsg">La parola d’ordine non è corretta. Riprova.</div>
+        <div class="gateHint">Suggerimento: la parola non distingue tra maiuscole e minuscole.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" id="invitoWrap" style="display:none;">
+    <div class="card">
+      <div class="frame-outer"></div>
+      <div class="frame-inner"></div>
+
+      <div class="knot-border" aria-hidden="true">
+        <div class="knot-top">᚛ᚋ᚜ ᚛ᚃ᚜ ᚛ᚋ᚜ ᚛ᚃ᚜ ᚛ᚋ᚜</div>
+        <div class="knot-bottom">᚛ᚃ᚜ ᚛ᚋ᚜ ᚛ᚃ᚜ ᚛ᚋ᚜ ᚛ᚃ᚜</div>
+        <div class="knot-left"><span>᚛ᚋ᚜ ᚛ᚃ᚜ ᚛ᚋ᚜ ᚛ᚃ᚜</span></div>
+        <div class="knot-right"><span>᚛ᚃ᚜ ᚛ᚋ᚜ ᚛ᚃ᚜ ᚛ᚋ᚜</span></div>
+      </div>
+
+      <header>
+        <div class="knotline celtic" aria-hidden="true">
+          <span>᚛</span><span>☘</span><span>᚜</span>
+          <span style="opacity:.7">ᚋ</span>
+          <span>᚛</span><span>ᚃ</span><span>᚜</span>
+          <span style="opacity:.7">ᚋ</span>
+          <span>᚛</span><span>☘</span><span>᚜</span>
+        </div>
+
+        <svg class="wreath" viewBox="0 0 900 320" role="img" aria-label="Decorazione matrimonio celtico boho">
+          <defs>
+            <linearGradient id="gSage" x1="0" x2="1">
+              <stop offset="0" stop-color="#46695a" stop-opacity="0.88"/>
+              <stop offset="1" stop-color="#7a9b8c" stop-opacity="0.88"/>
+            </linearGradient>
+            <linearGradient id="gGold" x1="0" x2="1">
+              <stop offset="0" stop-color="#c9b37a" stop-opacity="0.85"/>
+              <stop offset="1" stop-color="#c9b37a" stop-opacity="0.30"/>
+            </linearGradient>
+          </defs>
+
+          <path d="M130,240 C200,140 310,80 420,70" fill="none" stroke="url(#gSage)" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+          <path d="M770,240 C700,140 590,80 480,70" fill="none" stroke="url(#gSage)" stroke-width="6" stroke-linecap="round" opacity="0.55"/>
+
+          <g fill="none" stroke="url(#gSage)" stroke-width="3.2" opacity="0.60">
+            <path d="M170,220 c-22,-16 -24,-38 7,-47 c12,21 9,38 -7,47z"/>
+            <path d="M215,185 c-20,-14 -22,-34 6,-43 c11,19 8,34 -6,43z"/>
+            <path d="M265,150 c-19,-14 -21,-33 6,-42 c10,18 8,33 -6,42z"/>
+            <path d="M315,120 c-18,-13 -20,-31 6,-40 c10,17 7,31 -6,40z"/>
+            <path d="M365,98  c-16,-12 -18,-28 5,-36 c9,16 7,29 -5,36z"/>
+          </g>
+
+          <g fill="none" stroke="url(#gSage)" stroke-width="3.2" opacity="0.60">
+            <path d="M730,220 c22,-16 24,-38 -7,-47 c-12,21 -9,38 7,47z"/>
+            <path d="M685,185 c20,-14 22,-34 -6,-43 c-11,19 -8,34 6,43z"/>
+            <path d="M635,150 c19,-14 -21,-33 -6,-42 c-10,18 8,33 6,42z"/>
+            <path d="M585,120 c18,-13 20,-31 -6,-40 c-10,17 -7,31 6,40z"/>
+            <path d="M535,98  c16,-12 18,-28 -5,-36 c-9,16 7,29 5,36z"/>
+          </g>
+
+          <g fill="url(#gGold)" opacity="0.58">
+            <circle cx="235" cy="196" r="5.5"/><circle cx="285" cy="160" r="5.5"/><circle cx="335" cy="130" r="5.5"/><circle cx="385" cy="106" r="5.5"/>
+            <circle cx="665" cy="196" r="5.5"/><circle cx="615" cy="160" r="5.5"/><circle cx="565" cy="130" r="5.5"/><circle cx="515" cy="106" r="5.5"/>
+          </g>
+
+          <g fill="none" stroke="url(#gGold)" stroke-width="6" opacity="0.70">
+            <circle cx="468" cy="186" r="34"/>
+            <circle cx="510" cy="186" r="34"/>
+          </g>
+
+          <path d="M489,195
+                   c-8,-10 -22,-7 -22,6
+                   c0,16 22,25 22,25
+                   s22,-9 22,-25
+                   c0,-13 -14,-16 -22,-6z"
+                fill="url(#gGold)" opacity="0.55"/>
+
+          <g fill="none" stroke="#46695a" stroke-width="5.5" opacity="0.70" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M450,250
+                     C415,250 386,221 386,186
+                     C386,160 401,133 428,120
+                     C455,108 487,116 505,139
+                     C523,116 555,108 582,120
+                     C609,133 624,160 624,186
+                     C624,221 595,250 560,250
+                     C535,250 515,238 505,227
+                     C495,238 475,250 450,250Z"/>
+            <path d="M428,120 C450,147 468,170 505,227" opacity="0.50"/>
+            <path d="M582,120 C560,147 542,170 505,227" opacity="0.50"/>
+            <path d="M386,186 C425,190 468,205 505,227" opacity="0.40"/>
+            <path d="M624,186 C585,190 542,205 505,227" opacity="0.40"/>
+          </g>
+        </svg>
+
+        <h1>Marco &amp; Ilaria</h1>
+        <div class="subtitle">
+          Con immensa gioia vi invitiamo a celebrare con noi il nostro matrimonio.
+        </div>
+
+        <div class="details">
+          <div class="pill"><span class="dot" aria-hidden="true"></span> <strong>30 Maggio 2026</strong></div>
+          <div class="pill"><span class="dot" aria-hidden="true"></span> <strong>Rito ore 12:00</strong></div>
+          <div class="pill"><span class="dot" aria-hidden="true"></span> Casale L’Antica Mola</div>
+        </div>
+      </header>
+
+      <main>
+        <section class="panel" aria-label="RSVP">
+          <h2>Conferma la tua partecipazione</h2>
+
+          <form id="rsvpForm" onsubmit="return false;">
+            <div class="row">
+              <div>
+                <label for="nome">Nome *</label>
+                <input id="nome" name="nome" autocomplete="given-name" placeholder="Es. Giulia" required />
+              </div>
+              <div>
+                <label for="cognome">Cognome *</label>
+                <input id="cognome" name="cognome" autocomplete="family-name" placeholder="Es. Rossi" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="contatto">Email o telefono (per contatto) *</label>
+                <input id="contatto" name="contatto" autocomplete="email" placeholder="Es. giulia@email.com" required />
+              </div>
+              <div>
+                <label for="partecipa">Parteciperai? *</label>
+                <select id="partecipa" name="partecipa" required>
+                  <option value="">Seleziona…</option>
+                  <option value="Sì">Sì, con piacere</option>
+                  <option value="No">No, purtroppo non posso</option>
+                </select>
+              </div>
+            </div>
+
+            <label for="numPersone">Quante persone siete? *</label>
+            <select id="numPersone" name="numPersone" required>
+              <option value="">Seleziona…</option>
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+            </select>
+
+            <div class="divider"></div>
+
+            <label>Nominativi dei partecipanti *</label>
+            <div id="guestGrid" class="guestGrid"></div>
+            <input type="hidden" name="nominativi" id="nominativiHidden" />
+
+            <div class="divider"></div>
+
+            <label for="messaggio">Messaggio per gli sposi (privato)</label>
+            <textarea id="messaggio" name="messaggio" placeholder="Lascia un pensiero per Marco e Ilaria…"></textarea>
+
+            <p class="note" style="margin-top:12px; opacity:.90">
+              Per chi lo desidera, qui trovi i dettagli per contribuire al nostro viaggio.
+            </p>
+
+            <button class="btn btn-gold" type="button" id="giftBtn">
+              Un pensiero per gli sposi
+            </button>
+
+            <button class="btn" type="button" id="continueBtn">Invia partecipazione</button>
+
+            <div class="msg ok" id="okBox">Grazie! La tua partecipazione è pronta 💚</div>
+            <div class="msg err" id="errBox">Controlla i nominativi: serve nome e cognome per ogni partecipante.</div>
+
+            <p class="note">
+              I dati inseriti non sono visibili pubblicamente. Verranno usati solo per la gestione delle conferme.
+            </p>
+          </form>
+        </section>
+
+        <aside class="panel" aria-label="Info">
+          <h2>Dettagli</h2>
+          <p class="note" style="font-size:14px; opacity:.92; margin-top:0">
+            Cerimonia e festeggiamenti si terranno nello stesso luogo.
+          </p>
+          <div class="divider"></div>
+          <p class="note">
+            <b>Indirizzo:</b><br>
+            SP33a, km 8,450 — 00024 Castel Madama
+          </p>
+          <div class="divider"></div>
+          <p class="note">
+            Compila la conferma indicando quanti siete e i nominativi.
+            Se hai esigenze particolari (allergie/intolleranze/vegetariano/vegano), puoi scriverle nel messaggio.
+          </p>
+          <div class="divider"></div>
+          <p class="note celtic" aria-hidden="true">᚛ ᚋ ᚜ ᚃ ᚛ ᚋ ᚜</p>
+        </aside>
+      </main>
+
+      <div class="footer celtic">☘ ᚛ ᚋ ᚜ ᚃ ᚛ ᚋ ᚜ ☘</div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="giftModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="IBAN regalo">
+      <div style="padding:16px 16px 0;">
+        <div class="celtic" style="color:var(--deep); font-weight:900; letter-spacing:.02em;">☘ Un pensiero per gli sposi</div>
+        <p class="note" style="margin-top:8px">
+          Il regalo più grande sarà avervi con noi. Per chi lo desidera, è possibile contribuire al nostro viaggio insieme.
+        </p>
+      </div>
+
+      <div style="padding:14px 16px 16px;">
+        <div style="border:1px solid rgba(70,105,90,.16); background:rgba(246,244,236,.55); border-radius:16px; padding:14px;">
+          <div class="note" style="margin:0 0 8px; opacity:.9"><b>IBAN</b></div>
+
+          <div id="ibanText" style="font-size:18px; font-weight:800; letter-spacing:.06em; color:var(--deep); word-break:break-all;">
+            IT00 X000 0000 0000 0000 0000 000
+          </div>
+
+          <div class="note" style="margin-top:10px;">
+            Intestatario: <b>Marco &amp; Ilaria</b>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+          <button type="button" id="copyIban" class="btn" style="flex:1; min-width:190px;">
+            Copia IBAN
+          </button>
+          <button type="button" id="shareIban" class="btn btn-gold" style="flex:1; min-width:190px;">
+            Salva / Condividi
+          </button>
+        </div>
+
+        <div id="ibanMsg" class="msg ok" style="display:none; margin-top:10px;">Copiato ✔</div>
+
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button type="button" id="closeGift" class="btn btn-ghost">
+            Chiudi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="thanks-backdrop" id="thanksModal">
+    <div class="thanksModal" role="dialog" aria-modal="true" aria-label="Ringraziamento">
+      <div class="thanksHead">
+        <div>
+          <div class="thanksTitle celtic">Grazie di cuore ☘</div>
+          <p class="note" style="margin:6px 0 0; opacity:.88">
+            La tua partecipazione è stata registrata. Un piccolo ringraziamento da parte di Marco &amp; Ilaria.
+          </p>
+        </div>
+        <button type="button" id="closeThanksX" class="rBtn" title="Chiudi">×</button>
+      </div>
+
+      <div class="thanksBody">
+        <div class="thanksImgWrap">
+          <img loading="lazy" decoding="async" src="https://i.postimg.cc/p2VrgqbK/ilamar.jpg" alt="Ringraziamento Marco e Ilaria">
+        </div>
+        <p class="note" style="margin:10px 0 0; opacity:.88">
+          Se vuoi correggere qualcosa, premi “Modifica dati”.
+        </p>
+      </div>
+
+      <div class="thanksActions">
+        <button type="button" id="backToEdit" class="btn btn-ghost btnBig" style="flex:1; min-width:180px;">
+          Modifica dati
+        </button>
+        <button type="button" id="closeThanks" class="btn btnBig" style="flex:1; min-width:220px;">
+          Chiudi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" aria-hidden="true">
+    <div class="adminPanel" role="dialog" aria-modal="true" aria-label="Admin RSVP">
+      <div class="adminHead">
+        <div>
+          <div class="adminTitle celtic">Admin — Partecipazioni ☘</div>
+          <div class="note" style="margin-top:6px; opacity:.85">
+            Scorciatoia: <b>CTRL</b> + <b>ALT</b> + <b>A</b> (poi chiave).
+          </div>
+        </div>
+        <button type="button" id="adminCloseX" class="rBtn" title="Chiudi">×</button>
+      </div>
+      <div class="adminBody">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" id="adminRefresh" class="btn" style="flex:1; min-width:180px;">Aggiorna</button>
+          <button type="button" id="adminLogout" class="btn btn-ghost" style="flex:1; min-width:180px;">Esci</button>
+        </div>
+
+        <div class="adminGrid" id="adminStats" style="margin-top:12px;">
+          <div class="adminCard"><b>Totale invii:</b> <span id="stTotal">-</span></div>
+          <div class="adminCard"><b>Partecipano (Sì):</b> <span id="stYes">-</span></div>
+          <div class="adminCard"><b>Non partecipano (No):</b> <span id="stNo">-</span></div>
+          <div class="adminCard"><b>Persone totali (Sì):</b> <span id="stPeopleYes">-</span></div>
+          <div class="adminCard"><b>Persone totali (No):</b> <span id="stPeopleNo">-</span></div>
+          <div class="adminCard"><b>Ultimo aggiornamento:</b> <span id="stUpdated">-</span></div>
+        </div>
+
+        <div class="adminList" id="adminList">
+          <div class="adminRow">Carica dati…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="radioDock" id="radioDock" aria-label="Radio celtica">
+    <div class="radioTop">
+      <div class="radioBrand">
+        <span class="ico">♪ ☘</span>
+        <span>Invoca il Menestrello</span>
+      </div>
+      <div class="radioControls">
+        <button class="rBtn" id="radioPlay">Play</button>
+        <button class="rBtn" id="radioPause">Stop</button>
+        <button class="rBtn" id="radioHide" title="Nascondi">×</button>
+      </div>
+    </div>
+
+    <div class="radioRow">
+      <select id="radioSelect" aria-label="Seleziona radio">
+        <option value="http://stream.ancientfm.com:8058/stream">Celtic Music Radio</option>
+      </select>
+      <div class="radioHint" id="radioHint">
+        Provo ad avviare automaticamente. Se non parte, tocca <b>Play</b> (alcuni telefoni bloccano l’audio automatico).
+      </div>
+    </div>
+
+    <audio id="radioAudio" preload="none" playsinline></audio>
+  </div>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // =======================
+    // CONFIG (✅ 1 sola function)
+    // =======================
+    const RSVP_ENDPOINT = "/.netlify/functions/rsvp";
+
+    // =======================
+    // --- GATE ---
+    // =======================
+    const gate = document.getElementById("gate");
+    const gateInput = document.getElementById("gateInput");
+    const gateBtn = document.getElementById("gateBtn");
+    const gateMsg = document.getElementById("gateMsg");
+    const invitoWrap = document.getElementById("invitoWrap");
+
+    function normalizeWord(s){
+      return (s || "").replace(/\s+/g, " ").trim().toLowerCase();
+    }
+    function openInvite(){
+      gate.style.display = "none";
+      invitoWrap.style.display = "block";
+      document.body.classList.add("entered");
+      setTimeout(() => document.getElementById("nome")?.focus(), 300);
+    }
+    function checkGate(){
+      const val = normalizeWord(gateInput.value);
+      gateMsg.style.display = "none";
+      if(val === "quercia"){
+        try { localStorage.setItem("mi_invito_access", "ok"); } catch(e) {}
+        openInvite();
+      } else {
+        gateMsg.textContent = "La parola d’ordine non è corretta. Riprova.";
+        gateMsg.style.display = "block";
+      }
+    }
+    gateBtn.addEventListener("click", (e) => { e.preventDefault(); checkGate(); });
+    gateInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter"){ e.preventDefault(); checkGate(); }
+    });
+    try{
+      if(localStorage.getItem("mi_invito_access") === "ok") openInvite();
+      else setTimeout(() => gateInput.focus(), 50);
+    }catch(e){ setTimeout(() => gateInput.focus(), 50); }
+
+    // =======================
+    // --- RSVP UI ---
+    // =======================
+    const numSelect = document.getElementById("numPersone");
+    const grid = document.getElementById("guestGrid");
+    const hidden = document.getElementById("nominativiHidden");
+    const okBox = document.getElementById("okBox");
+    const errBox = document.getElementById("errBox");
+    const continueBtn = document.getElementById("continueBtn");
+
+    const BTN_DEFAULT_TEXT = "Invia partecipazione";
+
+    function buildGuests(n){
+      grid.innerHTML = "";
+      if(!n) return;
+      const count = parseInt(n, 10);
+      for(let i=1; i<=count; i++){
+        const card = document.createElement("div");
+        card.className = "guestCard";
+        card.innerHTML = `
+          <div class="small">Partecipante ${i}</div>
+          <label style="margin-top:0" for="g_nome_${i}">Nome *</label>
+          <input id="g_nome_${i}" data-gn="1" placeholder="Es. Giulia" required />
+          <label for="g_cognome_${i}">Cognome *</label>
+          <input id="g_cognome_${i}" data-gc="1" placeholder="Es. Rossi" required />
+        `;
+        grid.appendChild(card);
+      }
+      syncHidden();
+    }
+
+    function syncHidden(){
+      const n = parseInt(numSelect.value || "0", 10);
+      const lines = [];
+      for(let i=1; i<=n; i++){
+        const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
+        const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
+        if(nome || cognome) lines.push(`${nome} ${cognome}`.trim());
+      }
+      hidden.value = lines.join("\n");
+    }
+
+    function guestsValid(){
+      const n = parseInt(numSelect.value || "0", 10);
+      if(!n) return false;
+      for(let i=1; i<=n; i++){
+        const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
+        const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
+        if(!nome || !cognome) return false;
+      }
+      return true;
+    }
+
+    function baseValid(){
+      const nome = (document.getElementById("nome")?.value || "").trim();
+      const cognome = (document.getElementById("cognome")?.value || "").trim();
+      const contatto = (document.getElementById("contatto")?.value || "").trim();
+      const partecipa = (document.getElementById("partecipa")?.value || "").trim();
+      const num = (document.getElementById("numPersone")?.value || "").trim();
+      return !!(nome && cognome && contatto && partecipa && num);
+    }
+
+    numSelect.addEventListener("change", () => buildGuests(numSelect.value));
+    document.addEventListener("input", (e) => {
+      const t = e.target;
+      if(t && (t.hasAttribute?.("data-gn") || t.hasAttribute?.("data-gc"))) syncHidden();
+    });
+    buildGuests(numSelect.value);
+
+    // ✅ DISABILITA / RIABILITA FORM (anti doppia conferma)
+    function setFormDisabled(disabled){
+      const form = document.getElementById("rsvpForm");
+      if(!form) return;
+
+      const elements = form.querySelectorAll("input, select, textarea, button");
+      elements.forEach(el => {
+        // non tocchiamo bottoni dentro modali
+        if(el.closest(".thanksModal")) return;
+        if(el.closest(".adminPanel")) return;
+        el.disabled = disabled;
+      });
+    }
+
+    // =======================
+    // --- SALVATAGGIO (POST)
+    // =======================
+    function collectRsvpPayload(){
+      const nome = (document.getElementById("nome")?.value || "").trim();
+      const cognome = (document.getElementById("cognome")?.value || "").trim();
+      const contatto = (document.getElementById("contatto")?.value || "").trim();
+      const partecipa = (document.getElementById("partecipa")?.value || "").trim();
+      const numPersone = parseInt((document.getElementById("numPersone")?.value || "0"), 10) || 0;
+	  const nominativi = (document.getElementById("nominativiHidden")?.value || "").trim();
+      const messaggio = (document.getElementById("messaggio")?.value || "").trim();
+
+      return { nome, cognome, contatto, partecipa, numPersone, nominativi, messaggio };
+    }
+
+    async function saveToNetlify(){
+      const payload = collectRsvpPayload();
+
+      const res = await fetch(RSVP_ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      let json = null;
+      try{ json = await res.json(); }catch{}
+
+      if(!res.ok || !json?.ok){
+        const msg = json?.error || "Errore nel salvataggio. Riprova.";
+        throw new Error(msg);
+      }
+      return json;
+    }
+
+    function markSentLocally(){
+      try{
+        localStorage.setItem("mi_rsvp_sent", "1");
+      }catch(e){}
+    }
+    function isSentLocally(){
+      try{
+        return localStorage.getItem("mi_rsvp_sent") === "1";
+      }catch(e){ return false; }
+    }
+
+    // =======================
+    // --- THANKS MODAL ---
+    // =======================
+    const thanksModal = document.getElementById("thanksModal");
+    const closeThanksX = document.getElementById("closeThanksX");
+    const closeThanksBtn = document.getElementById("closeThanks");
+    const backToEdit = document.getElementById("backToEdit");
+
+    function openThanks(){
+      thanksModal.style.display = "flex";
+      setTimeout(() => closeThanksBtn?.focus(), 80);
+    }
+    function closeThanks(){
+      thanksModal.style.display = "none";
+    }
+
+    closeThanksX.addEventListener("click", closeThanks);
+    closeThanksBtn.addEventListener("click", closeThanks);
+    thanksModal.addEventListener("click", (e) => { if(e.target === thanksModal) closeThanks(); });
+
+    // ✅ “Modifica dati” riabilita il form (e riporta bottone normale)
+    backToEdit.addEventListener("click", () => {
+      try{ localStorage.removeItem("mi_rsvp_sent"); }catch(e){}
+      setFormDisabled(false);
+      continueBtn.disabled = false;
+      continueBtn.textContent = BTN_DEFAULT_TEXT;
+      okBox.style.display = "none";
+      errBox.style.display = "none";
+      closeThanks();
+      setTimeout(() => continueBtn?.focus(), 50);
+    });
+
+    // =======================
+    // ✅ CLICK SU “Invia partecipazione”
+    // =======================
+    continueBtn.addEventListener("click", async () => {
+      syncHidden();
+      okBox.style.display = "none";
+      errBox.style.display = "none";
+
+      if(!baseValid() || !guestsValid()){
+        errBox.textContent = "Completa tutti i campi e inserisci nome e cognome per ogni partecipante.";
+        errBox.style.display = "block";
+        return;
+      }
+
+      continueBtn.disabled = true;
+      const oldText = continueBtn.textContent;
+      continueBtn.textContent = "Invio in corso…";
+
+      try{
+        await saveToNetlify();
+
+        // 🔒 blocca tutto + memorizza “inviato” su questo dispositivo
+        setFormDisabled(true);
+        markSentLocally();
+
+        okBox.textContent = "Grazie! La tua partecipazione è stata registrata 💚";
+        okBox.style.display = "block";
+
+        // bottone resta bloccato e cambia testo
+        continueBtn.textContent = "Partecipazione inviata ✓";
+        continueBtn.disabled = true;
+
+        openThanks();
+      }catch(err){
+        errBox.textContent = err?.message || "Errore nel salvataggio. Riprova.";
+        errBox.style.display = "block";
+        continueBtn.disabled = false;
+        continueBtn.textContent = oldText;
+      }
+    });
+
+    // Se già inviato su questo dispositivo → blocco subito (anti doppio invio)
+    if(isSentLocally()){
+      setFormDisabled(true);
+      okBox.textContent = "Hai già inviato la partecipazione da questo dispositivo 💚";
+      okBox.style.display = "block";
+      continueBtn.textContent = "Partecipazione inviata ✓";
+      continueBtn.disabled = true;
+    }
+
+    // =======================
+    // --- MODAL IBAN ---
+    // =======================
+    const giftBtn = document.getElementById("giftBtn");
+    const giftModal = document.getElementById("giftModal");
+    const closeGift = document.getElementById("closeGift");
+    const ibanTextEl = document.getElementById("ibanText");
+    const copyIban = document.getElementById("copyIban");
+    const shareIban = document.getElementById("shareIban");
+    const ibanMsg = document.getElementById("ibanMsg");
+
+    function openGift(){ giftModal.style.display="flex"; ibanMsg.style.display="none"; }
+    function closeGiftModal(){ giftModal.style.display="none"; }
+
+    giftBtn.addEventListener("click", openGift);
+    closeGift.addEventListener("click", closeGiftModal);
+    giftModal.addEventListener("click", (e) => { if(e.target === giftModal) closeGiftModal(); });
+
+    copyIban.addEventListener("click", async () => {
+      const iban = (ibanTextEl?.textContent || "").trim();
+      try{
+        await navigator.clipboard.writeText(iban);
+        ibanMsg.textContent = "Copiato ✔";
+        ibanMsg.style.display = "block";
+        setTimeout(() => ibanMsg.style.display = "none", 1600);
+      }catch{
+        ibanMsg.textContent = "Seleziona e copia manualmente";
+        ibanMsg.style.display = "block";
+      }
+    });
+
+    shareIban.addEventListener("click", async () => {
+      const iban = (ibanTextEl?.textContent || "").trim();
+      const text = `IBAN (Marco & Ilaria): ${iban}`;
+      try{
+        if(navigator.share){
+          await navigator.share({ title: "IBAN — Marco & Ilaria", text });
+        } else {
+          await navigator.clipboard.writeText(text);
+          ibanMsg.textContent = "Testo copiato ✔";
+          ibanMsg.style.display = "block";
+          setTimeout(() => ibanMsg.style.display = "none", 1600);
+        }
+      }catch{}
+    });
+
+    // =======================
+    // --- RADIO ---
+    // =======================
+    const radioDock = document.getElementById("radioDock");
+    const radioAudio = document.getElementById("radioAudio");
+    const radioSelect = document.getElementById("radioSelect");
+    const radioPlay = document.getElementById("radioPlay");
+    const radioPause = document.getElementById("radioPause");
+    const radioHide = document.getElementById("radioHide");
+    const radioHint = document.getElementById("radioHint");
+
+    function setStream(url){
+      if(radioAudio && radioAudio.src !== url){
+        radioAudio.src = url;
+      }
+    }
+    async function tryAutoplay(){
+      try{
+        setStream(radioSelect.value);
+        radioAudio.volume = 0.7;
+        await radioAudio.play();
+        radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
+      }catch{
+        radioHint.innerHTML = 'Tocca <b>Play</b> per attivare la musica (autoplay bloccato dal browser).';
+      }
+    }
+    radioPlay.addEventListener("click", async () => {
+      try{
+        setStream(radioSelect.value);
+        radioAudio.volume = 0.7;
+        await radioAudio.play();
+        radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
+      }catch{
+        radioHint.textContent = "Impossibile avviare: controlla volume/silenzioso del telefono.";
+      }
+    });
+    radioPause.addEventListener("click", () => {
+      radioAudio.pause();
+      radioHint.textContent = "Musica in pausa.";
+    });
+    radioHide.addEventListener("click", () => {
+      radioDock.classList.add("radioHidden");
+      radioAudio.pause();
+    });
+
+    function kickRadioAfterGate(){
+      tryAutoplay();
+      const startOnFirstGesture = async () => {
+        if(radioAudio.paused){
+          try{ await radioAudio.play(); }catch{}
+        }
+      };
+      window.addEventListener("pointerdown", startOnFirstGesture, { once:true });
+    }
+
+    try{
+      if(localStorage.getItem("mi_invito_access") === "ok"){
+        kickRadioAfterGate();
+      } else {
+        gateBtn.addEventListener("click", () => {
+          if(normalizeWord(gateInput.value) === "quercia"){
+            setTimeout(kickRadioAfterGate, 50);
+          }
+        });
+      }
+    }catch(e){}
+
+    // =======================
+    // ✅ ADMIN (CTRL+ALT+A) — usa key richiesta a runtime
+    // =======================
+    const adminBackdrop = document.getElementById("adminBackdrop");
+    const adminCloseX = document.getElementById("adminCloseX");
+    const adminRefresh = document.getElementById("adminRefresh");
+    const adminLogout = document.getElementById("adminLogout");
+    const adminList = document.getElementById("adminList");
+
+    const stTotal = document.getElementById("stTotal");
+    const stYes = document.getElementById("stYes");
+    const stNo = document.getElementById("stNo");
+    const stPeopleYes = document.getElementById("stPeopleYes");
+    const stPeopleNo = document.getElementById("stPeopleNo");
+    const stUpdated = document.getElementById("stUpdated");
+
+    function openAdmin(){
+      adminBackdrop.style.display = "flex";
+      adminBackdrop.setAttribute("aria-hidden", "false");
+      setTimeout(() => adminRefresh?.focus(), 60);
+    }
+    function closeAdmin(){
+      adminBackdrop.style.display = "none";
+      adminBackdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function getAdminKey(){
+      try{
+        return sessionStorage.getItem("mi_admin_key") || "";
+      }catch(e){ return ""; }
+    }
+    function setAdminKey(key){
+      try{
+        sessionStorage.setItem("mi_admin_key", key);
+      }catch(e){}
+    }
+    function clearAdminKey(){
+      try{
+        sessionStorage.removeItem("mi_admin_key");
+      }catch(e){}
+    }
+
+    async function loadAdminData(){
+      const key = getAdminKey();
+      if(!key){
+        adminList.innerHTML = `<div class="adminRow">Manca la chiave admin.</div>`;
+        return;
+      }
+
+      adminList.innerHTML = `<div class="adminRow">Caricamento…</div>`;
+      stUpdated.textContent = new Date().toLocaleString();
+
+      const res = await fetch(`${RSVP_ENDPOINT}?key=${encodeURIComponent(key)}`, { method:"GET" });
+      const data = await res.json().catch(() => ({}));
+
+      if(!res.ok || !data?.ok){
+        adminList.innerHTML = `<div class="adminRow">Chiave errata o funzione non pronta.</div>`;
+        return;
+      }
+
+      // Totali dalla function
+      const t = data.totals || {};
+      stTotal.textContent = t.rsvp_total ?? "-";
+      stYes.textContent = t.rsvp_yes ?? "-";
+      stNo.textContent = t.rsvp_no ?? "-";
+      stPeopleYes.textContent = t.persons_yes ?? "-";
+      stPeopleNo.textContent = t.persons_no ?? "-";
+      stUpdated.textContent = new Date().toLocaleString();
+
+      const entries = Array.isArray(data.items) ? data.items : [];
+      if(!entries.length){
+        adminList.innerHTML = `<div class="adminRow">Nessuna partecipazione registrata.</div>`;
+        return;
+      }
+
+      const sorted = [...entries].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+      adminList.innerHTML = sorted.map(e => {
+        const p = (e.partecipa || "").trim();
+        const badgeClass = p === "No" ? "badge no" : "badge";
+        const fullName = `${e.nome || ""} ${e.cognome || ""}`.trim() || "-";
+        const contatto = e.contatto || "-";
+        const np = e.numPersone ?? "-";
+        const guests = (e.nominativi || "-").replace(/\n/g, ", ");
+        const msg = e.messaggio ? ` — “${String(e.messaggio).slice(0,120)}${String(e.messaggio).length>120?"…":""}”` : "";
+        const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
+        return `
+          <div class="adminRow">
+            <span class="${badgeClass}">${p || "-"}</span>
+            <b>${fullName}</b> — <span>${contatto}</span><br>
+            Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
+            <span style="opacity:.75">${when}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function adminShortcut(){
+      if(!getAdminKey()){
+        const k = prompt("Admin — Inserisci la chiave:");
+        if(!k) return;
+        setAdminKey(k.trim());
+      }
+      openAdmin();
+      loadAdminData().catch(()=>{});
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if(e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")){
+        e.preventDefault();
+        adminShortcut();
+      }
+    });
+
+    adminCloseX.addEventListener("click", closeAdmin);
+    adminBackdrop.addEventListener("click", (e) => { if(e.target === adminBackdrop) closeAdmin(); });
+
+    adminRefresh.addEventListener("click", () => loadAdminData().catch(()=>{}));
+
+    adminLogout.addEventListener("click", () => {
+      clearAdminKey();
+      closeAdmin();
+    });
+  });
+  </script>
+</body>
+</html>
