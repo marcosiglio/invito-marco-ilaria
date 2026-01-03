@@ -1025,7 +1025,7 @@
     <audio id="radioAudio" preload="none" playsinline></audio>
   </div>
 
-  <script>
+ <script>
 document.addEventListener("DOMContentLoaded", () => {
   const RSVP_ENDPOINT = "/.netlify/functions/rsvp";
 
@@ -1513,6 +1513,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // ✅ QUI: render con cestino (come da tue istruzioni)
     const sorted = [...entries].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
 
     adminList.innerHTML = sorted.map(e => {
@@ -1524,16 +1525,72 @@ document.addEventListener("DOMContentLoaded", () => {
       const guests = (e.nominativi || "-").replace(/\n/g, ", ");
       const msg = e.messaggio ? ` — “${String(e.messaggio).slice(0,120)}${String(e.messaggio).length>120?"…":""}”` : "";
       const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
+
+      const canDel = !!e.id;
+
       return `
-        <div class="adminRow">
-          <span class="${badgeClass}">${p || "-"}</span>
-          <b>${fullName}</b> — <span>${contatto}</span><br>
-          Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
-          <span style="opacity:.75">${when}</span>
+        <div class="adminRow" style="display:flex; gap:10px; justify-content:space-between; align-items:flex-start;">
+          <div style="flex:1; min-width:0;">
+            <span class="${badgeClass}">${p || "-"}</span>
+            <b>${fullName}</b> — <span>${contatto}</span><br>
+            Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
+            <span style="opacity:.75">${when}</span>
+          </div>
+
+          ${canDel ? `
+            <button
+              type="button"
+              class="rBtn"
+              title="Elimina"
+              data-del-id="${e.id}"
+              style="flex:0 0 auto;"
+            >🗑️</button>
+          ` : ""}
         </div>
       `;
     }).join("");
   }
+
+  // ✅ BLOCCO DA AGGIUNGERE: DELETE + delega click
+  async function deleteRsvpById(id){
+    const key = getAdminKey();
+    if(!key) throw new Error("Manca la chiave admin.");
+
+    const res = await fetch(`${RSVP_ENDPOINT}?key=${encodeURIComponent(key)}&id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if(!res.ok || !data?.ok){
+      throw new Error(data?.error || "Errore eliminazione.");
+    }
+    return data;
+  }
+
+  // delega click sul contenitore lista (così funziona anche dopo refresh)
+  adminList.addEventListener("click", async (ev) => {
+    const btn = ev.target?.closest?.("[data-del-id]");
+    if(!btn) return;
+
+    const id = btn.getAttribute("data-del-id");
+    if(!id) return;
+
+    const sure = confirm("Sei sicuro di voler eliminare questa partecipazione?\nQuesta azione è irreversibile.");
+    if(!sure) return;
+
+    btn.disabled = true;
+    const old = btn.textContent;
+    btn.textContent = "…";
+
+    try{
+      await deleteRsvpById(id);
+      await loadAdminData(); // refresh
+    }catch(err){
+      alert(err?.message || "Errore eliminazione.");
+      btn.disabled = false;
+      btn.textContent = old || "🗑️";
+    }
+  });
 
   function adminShortcut(){
     if(!getAdminKey()){
@@ -1560,6 +1617,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
 
 
 
