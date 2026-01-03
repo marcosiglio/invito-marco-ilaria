@@ -1026,151 +1026,184 @@
   </div>
 
   <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    // =======================
-    // CONFIG (✅ 1 sola function)
-    // =======================
-    const RSVP_ENDPOINT = "/.netlify/functions/rsvp";
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const RSVP_ENDPOINT = "/.netlify/functions/rsvp";
 
-    // =======================
-    // --- GATE ---
-    // =======================
-    const gate = document.getElementById("gate");
-    const gateInput = document.getElementById("gateInput");
-    const gateBtn = document.getElementById("gateBtn");
-    const gateMsg = document.getElementById("gateMsg");
-    const invitoWrap = document.getElementById("invitoWrap");
+  // =======================
+  // --- GATE ---
+  // =======================
+  const gate = document.getElementById("gate");
+  const gateInput = document.getElementById("gateInput");
+  const gateBtn = document.getElementById("gateBtn");
+  const gateMsg = document.getElementById("gateMsg");
+  const invitoWrap = document.getElementById("invitoWrap");
 
-    function normalizeWord(s){
-      return (s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  function normalizeWord(s){
+    return (s || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+  function openInvite(){
+    gate.style.display = "none";
+    invitoWrap.style.display = "block";
+    document.body.classList.add("entered");
+    setTimeout(() => document.getElementById("nome")?.focus(), 300);
+  }
+  function checkGate(){
+    const val = normalizeWord(gateInput.value);
+    gateMsg.style.display = "none";
+    if(val === "quercia"){
+      try { localStorage.setItem("mi_invito_access", "ok"); } catch(e) {}
+      openInvite();
+    } else {
+      gateMsg.textContent = "La parola d’ordine non è corretta. Riprova.";
+      gateMsg.style.display = "block";
     }
-    function openInvite(){
-      gate.style.display = "none";
-      invitoWrap.style.display = "block";
-      document.body.classList.add("entered");
-      setTimeout(() => document.getElementById("nome")?.focus(), 300);
+  }
+  gateBtn.addEventListener("click", (e) => { e.preventDefault(); checkGate(); });
+  gateInput.addEventListener("keydown", (e) => {
+    if(e.key === "Enter"){ e.preventDefault(); checkGate(); }
+  });
+  try{
+    if(localStorage.getItem("mi_invito_access") === "ok") openInvite();
+    else setTimeout(() => gateInput.focus(), 50);
+  }catch(e){ setTimeout(() => gateInput.focus(), 50); }
+
+  // =======================
+  // --- RSVP UI ---
+  // =======================
+  const partecipaSelect = document.getElementById("partecipa");
+  const numSelect = document.getElementById("numPersone");
+  const grid = document.getElementById("guestGrid");
+  const hidden = document.getElementById("nominativiHidden");
+  const okBox = document.getElementById("okBox");
+  const errBox = document.getElementById("errBox");
+  const continueBtn = document.getElementById("continueBtn");
+
+  const BTN_DEFAULT_TEXT = "Invia partecipazione";
+  let sending = false;
+
+  function buildGuests(n){
+    grid.innerHTML = "";
+    if(!n) return;
+    const count = parseInt(n, 10);
+    for(let i=1; i<=count; i++){
+      const card = document.createElement("div");
+      card.className = "guestCard";
+      card.innerHTML = `
+        <div class="small">Partecipante ${i}</div>
+        <label style="margin-top:0" for="g_nome_${i}">Nome *</label>
+        <input id="g_nome_${i}" data-gn="1" placeholder="Es. Giulia" required />
+        <label for="g_cognome_${i}">Cognome *</label>
+        <input id="g_cognome_${i}" data-gc="1" placeholder="Es. Rossi" required />
+      `;
+      grid.appendChild(card);
     }
-    function checkGate(){
-      const val = normalizeWord(gateInput.value);
-      gateMsg.style.display = "none";
-      if(val === "quercia"){
-        try { localStorage.setItem("mi_invito_access", "ok"); } catch(e) {}
-        openInvite();
-      } else {
-        gateMsg.textContent = "La parola d’ordine non è corretta. Riprova.";
-        gateMsg.style.display = "block";
-      }
+    syncHidden();
+  }
+
+  function syncHidden(){
+    const n = parseInt(numSelect.value || "0", 10);
+    const lines = [];
+    for(let i=1; i<=n; i++){
+      const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
+      const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
+      if(nome || cognome) lines.push(`${nome} ${cognome}`.trim());
     }
-    gateBtn.addEventListener("click", (e) => { e.preventDefault(); checkGate(); });
-    gateInput.addEventListener("keydown", (e) => {
-      if(e.key === "Enter"){ e.preventDefault(); checkGate(); }
-    });
-    try{
-      if(localStorage.getItem("mi_invito_access") === "ok") openInvite();
-      else setTimeout(() => gateInput.focus(), 50);
-    }catch(e){ setTimeout(() => gateInput.focus(), 50); }
+    hidden.value = lines.join("\n");
+  }
 
-    // =======================
-    // --- RSVP UI ---
-    // =======================
-    const numSelect = document.getElementById("numPersone");
-    const grid = document.getElementById("guestGrid");
-    const hidden = document.getElementById("nominativiHidden");
-    const okBox = document.getElementById("okBox");
-    const errBox = document.getElementById("errBox");
-    const continueBtn = document.getElementById("continueBtn");
+  function guestsValid(){
+    const partecipa = (partecipaSelect.value || "").trim();
+    if(partecipa === "No") return true;
 
-    const BTN_DEFAULT_TEXT = "Invia partecipazione";
+    const n = parseInt(numSelect.value || "0", 10);
+    if(!n) return false;
 
-    function buildGuests(n){
+    for(let i=1; i<=n; i++){
+      const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
+      const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
+      if(!nome || !cognome) return false;
+    }
+    return true;
+  }
+
+  function baseValid(){
+    const nome = (document.getElementById("nome")?.value || "").trim();
+    const cognome = (document.getElementById("cognome")?.value || "").trim();
+    const contatto = (document.getElementById("contatto")?.value || "").trim();
+    const partecipa = (partecipaSelect.value || "").trim();
+    if(!(nome && cognome && contatto && partecipa)) return false;
+
+    if(partecipa === "Sì"){
+      const num = (numSelect.value || "").trim();
+      return !!num && num !== "0";
+    }
+    return true;
+  }
+
+  numSelect.addEventListener("change", () => buildGuests(numSelect.value));
+  document.addEventListener("input", (e) => {
+    const t = e.target;
+    if(t && (t.hasAttribute?.("data-gn") || t.hasAttribute?.("data-gc"))) syncHidden();
+  });
+
+  // ✅ UI: se No → disabilito e svuoto blocco invitati
+  function updateParticipationUI(){
+    const v = (partecipaSelect.value || "").trim();
+
+    if(v === "No"){
+      numSelect.value = "0";
+      numSelect.disabled = true;
       grid.innerHTML = "";
-      if(!n) return;
-      const count = parseInt(n, 10);
-      for(let i=1; i<=count; i++){
-        const card = document.createElement("div");
-        card.className = "guestCard";
-        card.innerHTML = `
-          <div class="small">Partecipante ${i}</div>
-          <label style="margin-top:0" for="g_nome_${i}">Nome *</label>
-          <input id="g_nome_${i}" data-gn="1" placeholder="Es. Giulia" required />
-          <label for="g_cognome_${i}">Cognome *</label>
-          <input id="g_cognome_${i}" data-gc="1" placeholder="Es. Rossi" required />
-        `;
-        grid.appendChild(card);
-      }
-      syncHidden();
+      hidden.value = "";
+    } else {
+      numSelect.disabled = false;
+      if(!numSelect.value || numSelect.value === "0") numSelect.value = "1";
+      buildGuests(numSelect.value);
     }
+  }
+  partecipaSelect.addEventListener("change", updateParticipationUI);
 
-    function syncHidden(){
-      const n = parseInt(numSelect.value || "0", 10);
-      const lines = [];
-      for(let i=1; i<=n; i++){
-        const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
-        const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
-        if(nome || cognome) lines.push(`${nome} ${cognome}`.trim());
-      }
-      hidden.value = lines.join("\n");
-    }
+  // init
+  buildGuests(numSelect.value);
+  updateParticipationUI();
 
-    function guestsValid(){
-      const n = parseInt(numSelect.value || "0", 10);
-      if(!n) return false;
-      for(let i=1; i<=n; i++){
-        const nome = document.getElementById(`g_nome_${i}`)?.value?.trim() || "";
-        const cognome = document.getElementById(`g_cognome_${i}`)?.value?.trim() || "";
-        if(!nome || !cognome) return false;
-      }
-      return true;
-    }
-
-    function baseValid(){
-      const nome = (document.getElementById("nome")?.value || "").trim();
-      const cognome = (document.getElementById("cognome")?.value || "").trim();
-      const contatto = (document.getElementById("contatto")?.value || "").trim();
-      const partecipa = (document.getElementById("partecipa")?.value || "").trim();
-      const num = (document.getElementById("numPersone")?.value || "").trim();
-      return !!(nome && cognome && contatto && partecipa && num);
-    }
-
-    numSelect.addEventListener("change", () => buildGuests(numSelect.value));
-    document.addEventListener("input", (e) => {
-      const t = e.target;
-      if(t && (t.hasAttribute?.("data-gn") || t.hasAttribute?.("data-gc"))) syncHidden();
+  function setFormDisabled(disabled){
+    const form = document.getElementById("rsvpForm");
+    if(!form) return;
+    const elements = form.querySelectorAll("input, select, textarea, button");
+    elements.forEach(el => {
+      if(el.closest(".thanksModal")) return;
+      if(el.closest(".adminPanel")) return;
+      el.disabled = disabled;
     });
-    buildGuests(numSelect.value);
+  }
 
-    // ✅ DISABILITA / RIABILITA FORM (anti doppia conferma)
-    function setFormDisabled(disabled){
-      const form = document.getElementById("rsvpForm");
-      if(!form) return;
+  // =======================
+  // --- SALVATAGGIO (POST) con retry 409 ---
+  // =======================
+  function collectRsvpPayload(){
+    const nome = (document.getElementById("nome")?.value || "").trim();
+    const cognome = (document.getElementById("cognome")?.value || "").trim();
+    const contatto = (document.getElementById("contatto")?.value || "").trim();
+    const partecipa = (partecipaSelect.value || "").trim();
 
-      const elements = form.querySelectorAll("input, select, textarea, button");
-      elements.forEach(el => {
-        // non tocchiamo bottoni dentro modali
-        if(el.closest(".thanksModal")) return;
-        if(el.closest(".adminPanel")) return;
-        el.disabled = disabled;
-      });
+    let numPersone = parseInt((numSelect.value || "0"), 10) || 0;
+    let nominativi = (hidden.value || "").trim();
+    const messaggio = (document.getElementById("messaggio")?.value || "").trim();
+
+    if(partecipa === "No"){
+      numPersone = 0;
+      nominativi = "";
     }
 
-    // =======================
-    // --- SALVATAGGIO (POST)
-    // =======================
-    function collectRsvpPayload(){
-      const nome = (document.getElementById("nome")?.value || "").trim();
-      const cognome = (document.getElementById("cognome")?.value || "").trim();
-      const contatto = (document.getElementById("contatto")?.value || "").trim();
-      const partecipa = (document.getElementById("partecipa")?.value || "").trim();
-      const numPersone = parseInt((document.getElementById("numPersone")?.value || "0"), 10) || 0;
-	  const nominativi = (document.getElementById("nominativiHidden")?.value || "").trim();
-      const messaggio = (document.getElementById("messaggio")?.value || "").trim();
+    return { nome, cognome, contatto, partecipa, numPersone, nominativi, messaggio };
+  }
 
-      return { nome, cognome, contatto, partecipa, numPersone, nominativi, messaggio };
-    }
+  async function saveToNetlify(){
+    const payload = collectRsvpPayload();
 
-    async function saveToNetlify(){
-      const payload = collectRsvpPayload();
-
+    const tryOnce = async () => {
       const res = await fetch(RSVP_ENDPOINT, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -1180,344 +1213,353 @@
       let json = null;
       try{ json = await res.json(); }catch{}
 
+      if(res.status === 409){
+        const err = new Error("BUSY");
+        err.code = 409;
+        throw err;
+      }
+
       if(!res.ok || !json?.ok){
-        const msg = json?.error || "Errore nel salvataggio. Riprova.";
-        throw new Error(msg);
+        throw new Error(json?.error || "Errore nel salvataggio. Riprova.");
       }
       return json;
-    }
+    };
 
-    function markSentLocally(){
+    for(let attempt=1; attempt<=3; attempt++){
       try{
-        localStorage.setItem("mi_rsvp_sent", "1");
-      }catch(e){}
-    }
-    function isSentLocally(){
-      try{
-        return localStorage.getItem("mi_rsvp_sent") === "1";
-      }catch(e){ return false; }
-    }
-
-    // =======================
-    // --- THANKS MODAL ---
-    // =======================
-    const thanksModal = document.getElementById("thanksModal");
-    const closeThanksX = document.getElementById("closeThanksX");
-    const closeThanksBtn = document.getElementById("closeThanks");
-    const backToEdit = document.getElementById("backToEdit");
-
-    function openThanks(){
-      thanksModal.style.display = "flex";
-      setTimeout(() => closeThanksBtn?.focus(), 80);
-    }
-    function closeThanks(){
-      thanksModal.style.display = "none";
-    }
-
-    closeThanksX.addEventListener("click", closeThanks);
-    closeThanksBtn.addEventListener("click", closeThanks);
-    thanksModal.addEventListener("click", (e) => { if(e.target === thanksModal) closeThanks(); });
-
-    // ✅ “Modifica dati” riabilita il form (e riporta bottone normale)
-    backToEdit.addEventListener("click", () => {
-      try{ localStorage.removeItem("mi_rsvp_sent"); }catch(e){}
-      setFormDisabled(false);
-      continueBtn.disabled = false;
-      continueBtn.textContent = BTN_DEFAULT_TEXT;
-      okBox.style.display = "none";
-      errBox.style.display = "none";
-      closeThanks();
-      setTimeout(() => continueBtn?.focus(), 50);
-    });
-
-    // =======================
-    // ✅ CLICK SU “Invia partecipazione”
-    // =======================
-    continueBtn.addEventListener("click", async () => {
-      syncHidden();
-      okBox.style.display = "none";
-      errBox.style.display = "none";
-
-      if(!baseValid() || !guestsValid()){
-        errBox.textContent = "Completa tutti i campi e inserisci nome e cognome per ogni partecipante.";
-        errBox.style.display = "block";
-        return;
-      }
-
-      continueBtn.disabled = true;
-      const oldText = continueBtn.textContent;
-      continueBtn.textContent = "Invio in corso…";
-
-      try{
-        await saveToNetlify();
-
-        // 🔒 blocca tutto + memorizza “inviato” su questo dispositivo
-        setFormDisabled(true);
-        markSentLocally();
-
-        okBox.textContent = "Grazie! La tua partecipazione è stata registrata 💚";
-        okBox.style.display = "block";
-
-        // bottone resta bloccato e cambia testo
-        continueBtn.textContent = "Partecipazione inviata ✓";
-        continueBtn.disabled = true;
-
-        openThanks();
+        return await tryOnce();
       }catch(err){
-        errBox.textContent = err?.message || "Errore nel salvataggio. Riprova.";
-        errBox.style.display = "block";
-        continueBtn.disabled = false;
-        continueBtn.textContent = oldText;
-      }
-    });
-
-    // Se già inviato su questo dispositivo → blocco subito (anti doppio invio)
-    if(isSentLocally()){
-      setFormDisabled(true);
-      okBox.textContent = "Hai già inviato la partecipazione da questo dispositivo 💚";
-      okBox.style.display = "block";
-      continueBtn.textContent = "Partecipazione inviata ✓";
-      continueBtn.disabled = true;
-    }
-
-    // =======================
-    // --- MODAL IBAN ---
-    // =======================
-    const giftBtn = document.getElementById("giftBtn");
-    const giftModal = document.getElementById("giftModal");
-    const closeGift = document.getElementById("closeGift");
-    const ibanTextEl = document.getElementById("ibanText");
-    const copyIban = document.getElementById("copyIban");
-    const shareIban = document.getElementById("shareIban");
-    const ibanMsg = document.getElementById("ibanMsg");
-
-    function openGift(){ giftModal.style.display="flex"; ibanMsg.style.display="none"; }
-    function closeGiftModal(){ giftModal.style.display="none"; }
-
-    giftBtn.addEventListener("click", openGift);
-    closeGift.addEventListener("click", closeGiftModal);
-    giftModal.addEventListener("click", (e) => { if(e.target === giftModal) closeGiftModal(); });
-
-    copyIban.addEventListener("click", async () => {
-      const iban = (ibanTextEl?.textContent || "").trim();
-      try{
-        await navigator.clipboard.writeText(iban);
-        ibanMsg.textContent = "Copiato ✔";
-        ibanMsg.style.display = "block";
-        setTimeout(() => ibanMsg.style.display = "none", 1600);
-      }catch{
-        ibanMsg.textContent = "Seleziona e copia manualmente";
-        ibanMsg.style.display = "block";
-      }
-    });
-
-    shareIban.addEventListener("click", async () => {
-      const iban = (ibanTextEl?.textContent || "").trim();
-      const text = `IBAN (Marco & Ilaria): ${iban}`;
-      try{
-        if(navigator.share){
-          await navigator.share({ title: "IBAN — Marco & Ilaria", text });
-        } else {
-          await navigator.clipboard.writeText(text);
-          ibanMsg.textContent = "Testo copiato ✔";
-          ibanMsg.style.display = "block";
-          setTimeout(() => ibanMsg.style.display = "none", 1600);
+        if(err?.code === 409 && attempt < 3){
+          await new Promise(r => setTimeout(r, 250 * attempt));
+          continue;
         }
-      }catch{}
-    });
-
-    // =======================
-    // --- RADIO ---
-    // =======================
-    const radioDock = document.getElementById("radioDock");
-    const radioAudio = document.getElementById("radioAudio");
-    const radioSelect = document.getElementById("radioSelect");
-    const radioPlay = document.getElementById("radioPlay");
-    const radioPause = document.getElementById("radioPause");
-    const radioHide = document.getElementById("radioHide");
-    const radioHint = document.getElementById("radioHint");
-
-    function setStream(url){
-      if(radioAudio && radioAudio.src !== url){
-        radioAudio.src = url;
+        throw err;
       }
     }
-    async function tryAutoplay(){
-      try{
-        setStream(radioSelect.value);
-        radioAudio.volume = 0.7;
-        await radioAudio.play();
-        radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
-      }catch{
-        radioHint.innerHTML = 'Tocca <b>Play</b> per attivare la musica (autoplay bloccato dal browser).';
-      }
-    }
-    radioPlay.addEventListener("click", async () => {
-      try{
-        setStream(radioSelect.value);
-        radioAudio.volume = 0.7;
-        await radioAudio.play();
-        radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
-      }catch{
-        radioHint.textContent = "Impossibile avviare: controlla volume/silenzioso del telefono.";
-      }
-    });
-    radioPause.addEventListener("click", () => {
-      radioAudio.pause();
-      radioHint.textContent = "Musica in pausa.";
-    });
-    radioHide.addEventListener("click", () => {
-      radioDock.classList.add("radioHidden");
-      radioAudio.pause();
-    });
+  }
 
-    function kickRadioAfterGate(){
-      tryAutoplay();
-      const startOnFirstGesture = async () => {
-        if(radioAudio.paused){
-          try{ await radioAudio.play(); }catch{}
-        }
-      };
-      window.addEventListener("pointerdown", startOnFirstGesture, { once:true });
+  function markSentLocally(){
+    try{ localStorage.setItem("mi_rsvp_sent", "1"); }catch(e){}
+  }
+  function isSentLocally(){
+    try{ return localStorage.getItem("mi_rsvp_sent") === "1"; }catch(e){ return false; }
+  }
+
+  // =======================
+  // --- THANKS MODAL ---
+  // =======================
+  const thanksModal = document.getElementById("thanksModal");
+  const closeThanksX = document.getElementById("closeThanksX");
+  const closeThanksBtn = document.getElementById("closeThanks");
+  const backToEdit = document.getElementById("backToEdit");
+
+  function openThanks(){
+    thanksModal.style.display = "flex";
+    setTimeout(() => closeThanksBtn?.focus(), 80);
+  }
+  function closeThanks(){
+    thanksModal.style.display = "none";
+  }
+
+  closeThanksX.addEventListener("click", closeThanks);
+  closeThanksBtn.addEventListener("click", closeThanks);
+  thanksModal.addEventListener("click", (e) => { if(e.target === thanksModal) closeThanks(); });
+
+  backToEdit.addEventListener("click", () => {
+    try{ localStorage.removeItem("mi_rsvp_sent"); }catch(e){}
+    setFormDisabled(false);
+    continueBtn.disabled = false;
+    continueBtn.textContent = BTN_DEFAULT_TEXT;
+    okBox.style.display = "none";
+    errBox.style.display = "none";
+    closeThanks();
+    setTimeout(() => continueBtn?.focus(), 50);
+  });
+
+  // =======================
+  // ✅ INVIA partecipazione (anti multi-click)
+  // =======================
+  continueBtn.addEventListener("click", async () => {
+    if(sending) return;
+    sending = true;
+
+    syncHidden();
+    okBox.style.display = "none";
+    errBox.style.display = "none";
+
+    if(!baseValid() || !guestsValid()){
+      errBox.textContent = "Completa i campi richiesti. Se partecipi, inserisci anche nominativi completi.";
+      errBox.style.display = "block";
+      sending = false;
+      return;
     }
+
+    continueBtn.disabled = true;
+    const oldText = continueBtn.textContent;
+    continueBtn.textContent = "Invio in corso…";
 
     try{
-      if(localStorage.getItem("mi_invito_access") === "ok"){
-        kickRadioAfterGate();
-      } else {
-        gateBtn.addEventListener("click", () => {
-          if(normalizeWord(gateInput.value) === "quercia"){
-            setTimeout(kickRadioAfterGate, 50);
-          }
-        });
-      }
-    }catch(e){}
+      await saveToNetlify();
 
-    // =======================
-    // ✅ ADMIN (CTRL+ALT+A) — usa key richiesta a runtime
-    // =======================
-    const adminBackdrop = document.getElementById("adminBackdrop");
-    const adminCloseX = document.getElementById("adminCloseX");
-    const adminRefresh = document.getElementById("adminRefresh");
-    const adminLogout = document.getElementById("adminLogout");
-    const adminList = document.getElementById("adminList");
+      setFormDisabled(true);
+      markSentLocally();
 
-    const stTotal = document.getElementById("stTotal");
-    const stYes = document.getElementById("stYes");
-    const stNo = document.getElementById("stNo");
-    const stPeopleYes = document.getElementById("stPeopleYes");
-    const stPeopleNo = document.getElementById("stPeopleNo");
-    const stUpdated = document.getElementById("stUpdated");
+      okBox.textContent = "Grazie! La tua partecipazione è stata registrata 💚";
+      okBox.style.display = "block";
 
-    function openAdmin(){
-      adminBackdrop.style.display = "flex";
-      adminBackdrop.setAttribute("aria-hidden", "false");
-      setTimeout(() => adminRefresh?.focus(), 60);
+      continueBtn.textContent = "Partecipazione inviata ✓";
+      continueBtn.disabled = true;
+
+      openThanks();
+    }catch(err){
+      errBox.textContent =
+        (err?.message === "BUSY")
+          ? "Sto registrando… riprova tra qualche secondo."
+          : (err?.message || "Errore nel salvataggio. Riprova.");
+      errBox.style.display = "block";
+
+      continueBtn.disabled = false;
+      continueBtn.textContent = oldText;
+    }finally{
+      sending = false;
     }
-    function closeAdmin(){
-      adminBackdrop.style.display = "none";
-      adminBackdrop.setAttribute("aria-hidden", "true");
-    }
-
-    function getAdminKey(){
-      try{
-        return sessionStorage.getItem("mi_admin_key") || "";
-      }catch(e){ return ""; }
-    }
-    function setAdminKey(key){
-      try{
-        sessionStorage.setItem("mi_admin_key", key);
-      }catch(e){}
-    }
-    function clearAdminKey(){
-      try{
-        sessionStorage.removeItem("mi_admin_key");
-      }catch(e){}
-    }
-
-    async function loadAdminData(){
-      const key = getAdminKey();
-      if(!key){
-        adminList.innerHTML = `<div class="adminRow">Manca la chiave admin.</div>`;
-        return;
-      }
-
-      adminList.innerHTML = `<div class="adminRow">Caricamento…</div>`;
-      stUpdated.textContent = new Date().toLocaleString();
-
-      const res = await fetch(`${RSVP_ENDPOINT}?key=${encodeURIComponent(key)}`, { method:"GET" });
-      const data = await res.json().catch(() => ({}));
-
-      if(!res.ok || !data?.ok){
-        adminList.innerHTML = `<div class="adminRow">Chiave errata o funzione non pronta.</div>`;
-        return;
-      }
-
-      // Totali dalla function
-      const t = data.totals || {};
-      stTotal.textContent = t.rsvp_total ?? "-";
-      stYes.textContent = t.rsvp_yes ?? "-";
-      stNo.textContent = t.rsvp_no ?? "-";
-      stPeopleYes.textContent = t.persons_yes ?? "-";
-      stPeopleNo.textContent = t.persons_no ?? "-";
-      stUpdated.textContent = new Date().toLocaleString();
-
-      const entries = Array.isArray(data.items) ? data.items : [];
-      if(!entries.length){
-        adminList.innerHTML = `<div class="adminRow">Nessuna partecipazione registrata.</div>`;
-        return;
-      }
-
-      const sorted = [...entries].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
-
-      adminList.innerHTML = sorted.map(e => {
-        const p = (e.partecipa || "").trim();
-        const badgeClass = p === "No" ? "badge no" : "badge";
-        const fullName = `${e.nome || ""} ${e.cognome || ""}`.trim() || "-";
-        const contatto = e.contatto || "-";
-        const np = e.numPersone ?? "-";
-        const guests = (e.nominativi || "-").replace(/\n/g, ", ");
-        const msg = e.messaggio ? ` — “${String(e.messaggio).slice(0,120)}${String(e.messaggio).length>120?"…":""}”` : "";
-        const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
-        return `
-          <div class="adminRow">
-            <span class="${badgeClass}">${p || "-"}</span>
-            <b>${fullName}</b> — <span>${contatto}</span><br>
-            Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
-            <span style="opacity:.75">${when}</span>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function adminShortcut(){
-      if(!getAdminKey()){
-        const k = prompt("Admin — Inserisci la chiave:");
-        if(!k) return;
-        setAdminKey(k.trim());
-      }
-      openAdmin();
-      loadAdminData().catch(()=>{});
-    }
-
-    window.addEventListener("keydown", (e) => {
-      if(e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")){
-        e.preventDefault();
-        adminShortcut();
-      }
-    });
-
-    adminCloseX.addEventListener("click", closeAdmin);
-    adminBackdrop.addEventListener("click", (e) => { if(e.target === adminBackdrop) closeAdmin(); });
-
-    adminRefresh.addEventListener("click", () => loadAdminData().catch(()=>{}));
-
-    adminLogout.addEventListener("click", () => {
-      clearAdminKey();
-      closeAdmin();
-    });
   });
-  </script>
+
+  if(isSentLocally()){
+    setFormDisabled(true);
+    okBox.textContent = "Hai già inviato la partecipazione da questo dispositivo 💚";
+    okBox.style.display = "block";
+    continueBtn.textContent = "Partecipazione inviata ✓";
+    continueBtn.disabled = true;
+  }
+
+  // =======================
+  // --- MODAL IBAN ---
+  // =======================
+  const giftBtn = document.getElementById("giftBtn");
+  const giftModal = document.getElementById("giftModal");
+  const closeGift = document.getElementById("closeGift");
+  const ibanTextEl = document.getElementById("ibanText");
+  const copyIban = document.getElementById("copyIban");
+  const shareIban = document.getElementById("shareIban");
+  const ibanMsg = document.getElementById("ibanMsg");
+
+  function openGift(){ giftModal.style.display="flex"; ibanMsg.style.display="none"; }
+  function closeGiftModal(){ giftModal.style.display="none"; }
+
+  giftBtn.addEventListener("click", openGift);
+  closeGift.addEventListener("click", closeGiftModal);
+  giftModal.addEventListener("click", (e) => { if(e.target === giftModal) closeGiftModal(); });
+
+  copyIban.addEventListener("click", async () => {
+    const iban = (ibanTextEl?.textContent || "").trim();
+    try{
+      await navigator.clipboard.writeText(iban);
+      ibanMsg.textContent = "Copiato ✔";
+      ibanMsg.style.display = "block";
+      setTimeout(() => ibanMsg.style.display = "none", 1600);
+    }catch{
+      ibanMsg.textContent = "Seleziona e copia manualmente";
+      ibanMsg.style.display = "block";
+    }
+  });
+
+  shareIban.addEventListener("click", async () => {
+    const iban = (ibanTextEl?.textContent || "").trim();
+    const text = `IBAN (Marco & Ilaria): ${iban}`;
+    try{
+      if(navigator.share){
+        await navigator.share({ title: "IBAN — Marco & Ilaria", text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        ibanMsg.textContent = "Testo copiato ✔";
+        ibanMsg.style.display = "block";
+        setTimeout(() => ibanMsg.style.display = "none", 1600);
+      }
+    }catch{}
+  });
+
+  // =======================
+  // --- RADIO (come tua) ---
+  // =======================
+  const radioDock = document.getElementById("radioDock");
+  const radioAudio = document.getElementById("radioAudio");
+  const radioSelect = document.getElementById("radioSelect");
+  const radioPlay = document.getElementById("radioPlay");
+  const radioPause = document.getElementById("radioPause");
+  const radioHide = document.getElementById("radioHide");
+  const radioHint = document.getElementById("radioHint");
+
+  function setStream(url){
+    if(radioAudio && radioAudio.src !== url){
+      radioAudio.src = url;
+    }
+  }
+  async function tryAutoplay(){
+    try{
+      setStream(radioSelect.value);
+      radioAudio.volume = 0.7;
+      await radioAudio.play();
+      radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
+    }catch{
+      radioHint.innerHTML = 'Tocca <b>Play</b> per attivare la musica (autoplay bloccato dal browser).';
+    }
+  }
+  radioPlay.addEventListener("click", async () => {
+    try{
+      setStream(radioSelect.value);
+      radioAudio.volume = 0.7;
+      await radioAudio.play();
+      radioHint.textContent = "Musica attiva. Puoi fermarla quando vuoi.";
+    }catch{
+      radioHint.textContent = "Impossibile avviare: controlla volume/silenzioso del telefono.";
+    }
+  });
+  radioPause.addEventListener("click", () => {
+    radioAudio.pause();
+    radioHint.textContent = "Musica in pausa.";
+  });
+  radioHide.addEventListener("click", () => {
+    radioDock.classList.add("radioHidden");
+    radioAudio.pause();
+  });
+
+  function kickRadioAfterGate(){
+    tryAutoplay();
+    const startOnFirstGesture = async () => {
+      if(radioAudio.paused){
+        try{ await radioAudio.play(); }catch{}
+      }
+    };
+    window.addEventListener("pointerdown", startOnFirstGesture, { once:true });
+  }
+
+  try{
+    if(localStorage.getItem("mi_invito_access") === "ok"){
+      kickRadioAfterGate();
+    } else {
+      gateBtn.addEventListener("click", () => {
+        if(normalizeWord(gateInput.value) === "quercia"){
+          setTimeout(kickRadioAfterGate, 50);
+        }
+      });
+    }
+  }catch(e){}
+
+  // =======================
+  // ✅ ADMIN (CTRL+ALT+A)
+  // =======================
+  const adminBackdrop = document.getElementById("adminBackdrop");
+  const adminCloseX = document.getElementById("adminCloseX");
+  const adminRefresh = document.getElementById("adminRefresh");
+  const adminLogout = document.getElementById("adminLogout");
+  const adminList = document.getElementById("adminList");
+
+  const stTotal = document.getElementById("stTotal");
+  const stYes = document.getElementById("stYes");
+  const stNo = document.getElementById("stNo");
+  const stPeopleYes = document.getElementById("stPeopleYes");
+  const stPeopleNo = document.getElementById("stPeopleNo");
+  const stUpdated = document.getElementById("stUpdated");
+
+  function openAdmin(){
+    adminBackdrop.style.display = "flex";
+    adminBackdrop.setAttribute("aria-hidden", "false");
+    setTimeout(() => adminRefresh?.focus(), 60);
+  }
+  function closeAdmin(){
+    adminBackdrop.style.display = "none";
+    adminBackdrop.setAttribute("aria-hidden", "true");
+  }
+
+  function getAdminKey(){
+    try{ return sessionStorage.getItem("mi_admin_key") || ""; }catch(e){ return ""; }
+  }
+  function setAdminKey(key){
+    try{ sessionStorage.setItem("mi_admin_key", key); }catch(e){}
+  }
+  function clearAdminKey(){
+    try{ sessionStorage.removeItem("mi_admin_key"); }catch(e){}
+  }
+
+  async function loadAdminData(){
+    const key = getAdminKey();
+    if(!key){
+      adminList.innerHTML = `<div class="adminRow">Manca la chiave admin.</div>`;
+      return;
+    }
+
+    adminList.innerHTML = `<div class="adminRow">Caricamento…</div>`;
+    stUpdated.textContent = new Date().toLocaleString();
+
+    const res = await fetch(`${RSVP_ENDPOINT}?key=${encodeURIComponent(key)}`, { method:"GET" });
+    const data = await res.json().catch(() => ({}));
+
+    if(!res.ok || !data?.ok){
+      adminList.innerHTML = `<div class="adminRow">Chiave errata o funzione non pronta.</div>`;
+      return;
+    }
+
+    const t = data.totals || {};
+    stTotal.textContent = t.rsvp_total ?? "-";
+    stYes.textContent = t.rsvp_yes ?? "-";
+    stNo.textContent = t.rsvp_no ?? "-";
+    stPeopleYes.textContent = t.persons_yes ?? "-";
+    stPeopleNo.textContent = t.persons_no ?? "-";
+    stUpdated.textContent = new Date().toLocaleString();
+
+    const entries = Array.isArray(data.items) ? data.items : [];
+    if(!entries.length){
+      adminList.innerHTML = `<div class="adminRow">Nessuna partecipazione registrata.</div>`;
+      return;
+    }
+
+    const sorted = [...entries].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
+
+    adminList.innerHTML = sorted.map(e => {
+      const p = (e.partecipa || "").trim();
+      const badgeClass = p === "No" ? "badge no" : "badge";
+      const fullName = `${e.nome || ""} ${e.cognome || ""}`.trim() || "-";
+      const contatto = e.contatto || "-";
+      const np = e.numPersone ?? "-";
+      const guests = (e.nominativi || "-").replace(/\n/g, ", ");
+      const msg = e.messaggio ? ` — “${String(e.messaggio).slice(0,120)}${String(e.messaggio).length>120?"…":""}”` : "";
+      const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
+      return `
+        <div class="adminRow">
+          <span class="${badgeClass}">${p || "-"}</span>
+          <b>${fullName}</b> — <span>${contatto}</span><br>
+          Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
+          <span style="opacity:.75">${when}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function adminShortcut(){
+    if(!getAdminKey()){
+      const k = prompt("Admin — Inserisci la chiave:");
+      if(!k) return;
+      setAdminKey(k.trim());
+    }
+    openAdmin();
+    loadAdminData().catch(()=>{});
+  }
+
+  window.addEventListener("keydown", (e) => {
+    if(e.ctrlKey && e.altKey && (e.key === "a" || e.key === "A")){
+      e.preventDefault();
+      adminShortcut();
+    }
+  });
+
+  adminCloseX.addEventListener("click", closeAdmin);
+  adminBackdrop.addEventListener("click", (e) => { if(e.target === adminBackdrop) closeAdmin(); });
+  adminRefresh.addEventListener("click", () => loadAdminData().catch(()=>{}));
+  adminLogout.addEventListener("click", () => { clearAdminKey(); closeAdmin(); });
+});
+</script>
 </body>
 </html>
+
 
