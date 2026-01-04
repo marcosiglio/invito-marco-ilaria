@@ -103,7 +103,7 @@ export default async (req) => {
     );
   }
 
-  // ---------- POST (SALVATAGGIO RSVP) ----------
+    // ---------- POST (SALVATAGGIO RSVP) ----------
   if (req.method === "POST") {
     let body;
     try {
@@ -120,7 +120,6 @@ export default async (req) => {
     let nominativi = sanitizeString(body.nominativi, 2000);
     const messaggio = sanitizeString(body.messaggio, 2000);
 
-    // base required
     if (!nome || !cognome || !contatto || !partecipa) {
       return jsonResponse({ ok: false, error: "Missing required fields" }, 400, corsHeaders());
     }
@@ -128,13 +127,11 @@ export default async (req) => {
       return jsonResponse({ ok: false, error: "Invalid 'partecipa' value" }, 400, corsHeaders());
     }
 
-    // Regole: se NO → numPersone=0 e nominativi vuoto
     if (partecipa === "No") {
       numPersone = 0;
       nominativi = "";
     }
 
-    // Regole: se SI → numPersone e nominativi obbligatori
     if (partecipa === "Sì") {
       if (!numPersone || numPersone < 1) {
         return jsonResponse(
@@ -165,29 +162,42 @@ export default async (req) => {
       ua: sanitizeString(req.headers.get("user-agent"), 400),
     };
 
+    // Retry robusto: SUCCESSO = setJSON NON lancia errori
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      const got = await store.getWithMetadata(KEY, { type: "json" });
+      try {
+        const got = await store.getWithMetadata(KEY, { type: "json" });
+        const current = Array.isArray(got?.data) ? got.data : [];
+        const etag = got?.etag;
 
-      const current = Array.isArray(got?.data) ? got.data : [];
-      const etag = got?.etag;
+        const next = [...current, entry];
 
-      const next = [...current, entry];
+        if (etag) {
+          await store.setJSON(KEY, next, { onlyIfMatch: etag });
+        } else if (got?.data) {
+          // se esiste già qualcosa ma etag non arriva, scrivo comunque (best effort)
+          await store.setJSON(KEY, next);
+        } else {
+          // primo write
+          await store.setJSON(KEY, next, { onlyIfNew: true });
+        }
 
-      // IMPORTANT: se esiste etag -> scrittura condizionale
-      // se NON esiste etag ma esiste già data -> scrittura “normale” (evita 409 inutili)
-      // se NON esiste nulla -> onlyIfNew
-      const opts =
-        etag
-          ? { onlyIfMatch: etag }
-          : (got?.data ? {} : { onlyIfNew: true });
-
-      const res = await store.setJSON(KEY, next, opts);
-
-      if (res?.modified) {
         return jsonResponse({ ok: true, id: entry.id }, 200, corsHeaders());
-      }
+      } catch (e) {
+        const status = e?.status || e?.cause?.status || e?.response?.status;
 
-      await sleep(140 * attempt);
+        // conflitto concorrenza -> retry
+        if (status === 409 || status === 412) {
+          await sleep(160 * attempt);
+          continue;
+        }
+
+        // altro errore -> espongo messaggio generico
+        return jsonResponse(
+          { ok: false, error: "Errore nel salvataggio (server). Riprova." },
+          500,
+          corsHeaders()
+        );
+      }
     }
 
     return jsonResponse({ ok: false, error: "Busy, retry" }, 409, corsHeaders());
@@ -233,3 +243,4 @@ export default async (req) => {
 
   return jsonResponse({ ok: false, error: "Method not allowed" }, 405, corsHeaders());
 };
+
