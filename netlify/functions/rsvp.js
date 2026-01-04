@@ -2,7 +2,7 @@ import { getStore } from "@netlify/blobs";
 
 const STORE_NAME = "rsvp-marco-ilaria";
 const KEY = "rsvps";
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 12;
 
 function jsonResponse(data, status = 200, extraHeaders = {}) {
   return new Response(JSON.stringify(data), {
@@ -80,6 +80,7 @@ export default async (req) => {
       }
     }
 
+    // (opzionale) ordino già lato server
     const items = [...data].sort((a, b) =>
       String(b?.createdAt || "").localeCompare(String(a?.createdAt || ""))
     );
@@ -102,47 +103,6 @@ export default async (req) => {
     );
   }
 
-  // ---------- DELETE (ADMIN) ----------
-  if (req.method === "DELETE") {
-    if (!isAuthed(req)) {
-      return jsonResponse({ ok: false, error: "Unauthorized" }, 401, corsHeaders());
-    }
-
-    const url = new URL(req.url);
-    const id = (url.searchParams.get("id") || "").trim();
-
-    if (!id) {
-      return jsonResponse({ ok: false, error: "Missing id" }, 400, corsHeaders());
-    }
-
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-      const got = await store.getWithMetadata(KEY, { type: "json" });
-      const current = Array.isArray(got?.data) ? got.data : [];
-      const etag = got?.etag;
-
-      const beforeLen = current.length;
-      const next = current.filter((x) => String(x?.id || "") !== id);
-
-      if (next.length === beforeLen) {
-        return jsonResponse({ ok: false, error: "Not found" }, 404, corsHeaders());
-      }
-
-      const res = await store.setJSON(
-        KEY,
-        next,
-        etag ? { onlyIfMatch: etag } : { onlyIfNew: true }
-      );
-
-      if (res?.modified) {
-        return jsonResponse({ ok: true, deletedId: id }, 200, corsHeaders());
-      }
-
-      await sleep(120 * attempt);
-    }
-
-    return jsonResponse({ ok: false, error: "Busy, retry" }, 409, corsHeaders());
-  }
-
   // ---------- POST (SALVATAGGIO RSVP) ----------
   if (req.method === "POST") {
     let body;
@@ -160,7 +120,7 @@ export default async (req) => {
     let nominativi = sanitizeString(body.nominativi, 2000);
     const messaggio = sanitizeString(body.messaggio, 2000);
 
-    // required base
+    // base required
     if (!nome || !cognome || !contatto || !partecipa) {
       return jsonResponse({ ok: false, error: "Missing required fields" }, 400, corsHeaders());
     }
@@ -168,13 +128,13 @@ export default async (req) => {
       return jsonResponse({ ok: false, error: "Invalid 'partecipa' value" }, 400, corsHeaders());
     }
 
-    // Se NO → non obblighiamo persone/nominativi
+    // Regole: se NO → numPersone=0 e nominativi vuoto
     if (partecipa === "No") {
       numPersone = 0;
       nominativi = "";
     }
 
-    // Se SÌ → obbligatori
+    // Regole: se SI → numPersone e nominativi obbligatori
     if (partecipa === "Sì") {
       if (!numPersone || numPersone < 1) {
         return jsonResponse(
@@ -207,22 +167,65 @@ export default async (req) => {
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       const got = await store.getWithMetadata(KEY, { type: "json" });
+
       const current = Array.isArray(got?.data) ? got.data : [];
       const etag = got?.etag;
 
       const next = [...current, entry];
 
-      const res = await store.setJSON(
-        KEY,
-        next,
-        etag ? { onlyIfMatch: etag } : { onlyIfNew: true }
-      );
+      // IMPORTANT: se esiste etag -> scrittura condizionale
+      // se NON esiste etag ma esiste già data -> scrittura “normale” (evita 409 inutili)
+      // se NON esiste nulla -> onlyIfNew
+      const opts =
+        etag
+          ? { onlyIfMatch: etag }
+          : (got?.data ? {} : { onlyIfNew: true });
+
+      const res = await store.setJSON(KEY, next, opts);
 
       if (res?.modified) {
         return jsonResponse({ ok: true, id: entry.id }, 200, corsHeaders());
       }
 
-      await sleep(120 * attempt);
+      await sleep(140 * attempt);
+    }
+
+    return jsonResponse({ ok: false, error: "Busy, retry" }, 409, corsHeaders());
+  }
+
+  // ---------- DELETE (ADMIN) ----------
+  if (req.method === "DELETE") {
+    if (!isAuthed(req)) {
+      return jsonResponse({ ok: false, error: "Unauthorized" }, 401, corsHeaders());
+    }
+
+    const url = new URL(req.url);
+    const id = (url.searchParams.get("id") || "").trim();
+    if (!id) {
+      return jsonResponse({ ok: false, error: "Missing id" }, 400, corsHeaders());
+    }
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      const got = await store.getWithMetadata(KEY, { type: "json" });
+      const current = Array.isArray(got?.data) ? got.data : [];
+      const etag = got?.etag;
+
+      const before = current.length;
+      const next = current.filter((x) => String(x?.id || "") !== id);
+
+      if (next.length === before) {
+        // id non trovato
+        return jsonResponse({ ok: false, error: "Not found" }, 404, corsHeaders());
+      }
+
+      const opts = etag ? { onlyIfMatch: etag } : {};
+      const res = await store.setJSON(KEY, next, opts);
+
+      if (res?.modified) {
+        return jsonResponse({ ok: true, deletedId: id }, 200, corsHeaders());
+      }
+
+      await sleep(140 * attempt);
     }
 
     return jsonResponse({ ok: false, error: "Busy, retry" }, 409, corsHeaders());
