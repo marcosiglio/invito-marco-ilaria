@@ -6,16 +6,19 @@
   <title>Marco & Ilaria — Invito</title>
   <meta name="description" content="Invito matrimonio Marco & Ilaria — RSVP" />
 
-  <!-- ========================= -->
-  <!-- LINK PREVIEW (CHAT / SOCIAL) -->
-  <!-- ========================= -->
+  <!-- =========================
+       ✅ SOCIAL COVER (LINK PREVIEW)
+       ========================= -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Marco & Ilaria" />
   <meta property="og:title" content="Marco & Ilaria — Invito" />
   <meta property="og:description" content="Invito matrimonio Marco & Ilaria — RSVP" />
   <meta property="og:url" content="https://marcoeilaria.netlify.app/" />
   <meta property="og:image" content="https://i.postimg.cc/gkNHNMY9/locandina.jpg" />
   <meta property="og:image:secure_url" content="https://i.postimg.cc/gkNHNMY9/locandina.jpg" />
-  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:alt" content="Locandina invito matrimonio Marco & Ilaria" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Marco & Ilaria — Invito" />
@@ -213,6 +216,26 @@
       box-shadow: 0 0 0 3px rgba(201,179,122,.18);
     }
 
+    /* ✅ Download locandina (nuovo) */
+    .downloadWrap{
+      margin-top: 18px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:8px;
+    }
+    .downloadHint{
+      font-size: 12.5px;
+      opacity: .82;
+      line-height: 1.4;
+    }
+    .downloadBtn{
+      max-width: 320px;
+      width: 100%;
+      text-decoration:none;
+      text-align:center;
+    }
+
     main{
       padding: 18px clamp(14px, 2.5vw, 22px) 26px;
       display:grid;
@@ -280,6 +303,7 @@
       letter-spacing:.02em;
       cursor:pointer;
       box-shadow: 0 12px 26px rgba(70,105,90,.22);
+      display:inline-block;
     }
     .btn:active{transform: scale(.99)}
     .note{
@@ -500,6 +524,7 @@
     @media (max-width:520px){
       .gateRow{ grid-template-columns: 1fr; }
       .gateEnter{ width:100% !important; }
+      .downloadBtn{ max-width: 100%; }
     }
     .gateMsg{
       display:none;
@@ -815,6 +840,19 @@
           <div class="pill"><span class="dot" aria-hidden="true"></span> <strong>Rito ore 12:00</strong></div>
           <div class="pill"><span class="dot" aria-hidden="true"></span> Casale L’Antica Mola</div>
         </div>
+
+        <!-- =========================
+             ✅ NUOVO: DOWNLOAD LOCANDINA
+             ========================= -->
+        <div class="downloadWrap">
+          <a
+            class="btn btn-ghost downloadBtn"
+            href="https://i.postimg.cc/gkNHNMY9/locandina.jpg"
+            download="Invito_Marco_e_Ilaria.jpg"
+            rel="noopener"
+          >☘️ 📥 Scarica la locandina</a>
+          <div class="downloadHint">Tieni con te l’invito.</div>
+        </div>
       </header>
 
       <main>
@@ -851,6 +889,7 @@
             <label for="numPersone">Quante persone siete? *</label>
             <select id="numPersone" name="numPersone" required>
               <option value="">Seleziona…</option>
+              <option value="0">0</option>
               <option value="1">1</option><option value="2">2</option><option value="3">3</option>
               <option value="4">4</option><option value="5">5</option><option value="6">6</option>
             </select>
@@ -1101,6 +1140,7 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.innerHTML = "";
     if(!n) return;
     const count = parseInt(n, 10);
+    if(count <= 0) return;
     for(let i=1; i<=count; i++){
       const card = document.createElement("div");
       card.className = "guestCard";
@@ -1529,7 +1569,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // ✅ QUI: render con cestino (come da tue istruzioni)
     const sorted = [...entries].sort((a,b)=> (b.createdAt||"").localeCompare(a.createdAt||""));
 
     adminList.innerHTML = sorted.map(e => {
@@ -1567,7 +1606,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("");
   }
 
-  // ✅ BLOCCO DA AGGIUNGERE: DELETE + delega click
   async function deleteRsvpById(id){
     const key = getAdminKey();
     if(!key) throw new Error("Manca la chiave admin.");
@@ -1583,7 +1621,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return data;
   }
 
-  // delega click sul contenitore lista (così funziona anche dopo refresh)
   adminList.addEventListener("click", async (ev) => {
     const btn = ev.target?.closest?.("[data-del-id]");
     if(!btn) return;
@@ -1600,7 +1637,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try{
       await deleteRsvpById(id);
-      await loadAdminData(); // refresh
+      await loadAdminData();
     }catch(err){
       alert(err?.message || "Errore eliminazione.");
       btn.disabled = false;
