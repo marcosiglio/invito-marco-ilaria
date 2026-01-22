@@ -721,6 +721,15 @@
       border-color: rgba(180,70,70,.22);
       color: #7a2424;
     }
+
+    /* ✅ OPZIONE B: messaggio espandibile in admin */
+    .msgText{
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .msgToggle{
+      margin-left: 8px;
+    }
   </style>
 </head>
 
@@ -1224,22 +1233,22 @@ document.addEventListener("DOMContentLoaded", () => {
   updateParticipationUI();
 
   function setFormDisabled(disabled){
-  const form = document.getElementById("rsvpForm");
-  if(!form) return;
+    const form = document.getElementById("rsvpForm");
+    if(!form) return;
 
-  const elements = form.querySelectorAll("input, select, textarea, button");
+    const elements = form.querySelectorAll("input, select, textarea, button");
 
-  elements.forEach(el => {
-    // ✅ Lascia sempre disponibile "Un pensiero per gli sposi"
-    if (el.id === "giftBtn") return;
+    elements.forEach(el => {
+      // ✅ Lascia sempre disponibile "Un pensiero per gli sposi"
+      if (el.id === "giftBtn") return;
 
-    // (le tue esclusioni, le lascio intatte)
-    if(el.closest(".thanksModal")) return;
-    if(el.closest(".adminPanel")) return;
+      // (le tue esclusioni, le lascio intatte)
+      if(el.closest(".thanksModal")) return;
+      if(el.closest(".adminPanel")) return;
 
-    el.disabled = disabled;
-  });
-}
+      el.disabled = disabled;
+    });
+  }
 
   // =======================
   // --- SALVATAGGIO (POST) con retry 409 ---
@@ -1585,8 +1594,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const contatto = e.contatto || "-";
       const np = e.numPersone ?? "-";
       const guests = (e.nominativi || "-").replace(/\n/g, ", ");
-      const msg = e.messaggio ? ` — “${String(e.messaggio).slice(0,120)}${String(e.messaggio).length>120?"…":""}”` : "";
       const when = e.createdAt ? new Date(e.createdAt).toLocaleString() : "";
+
+      // ✅ OPZIONE B: anteprima + toggle Mostra/Chiudi
+      const fullMsg = String(e.messaggio || "");
+      const isLong = fullMsg.length > 120;
+      const shortMsg = isLong ? (fullMsg.slice(0,120) + "…") : fullMsg;
+
+      const msg = fullMsg
+        ? ` — “<span class="msgText" data-full="${encodeURIComponent(fullMsg)}" data-open="0">${shortMsg}</span>”`
+        : "";
 
       const canDel = !!e.id;
 
@@ -1595,7 +1612,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <div style="flex:1; min-width:0;">
             <span class="${badgeClass}">${p || "-"}</span>
             <b>${fullName}</b> — <span>${contatto}</span><br>
-            Persone: <b>${np}</b> — Nominativi: ${guests}${msg}<br>
+            Persone: <b>${np}</b> — Nominativi: ${guests}${msg}
+            ${isLong ? `<button type="button" class="rBtn msgToggle" title="Mostra messaggio">Mostra</button>` : ""}
+            <br>
             <span style="opacity:.75">${when}</span>
           </div>
 
@@ -1652,6 +1671,32 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // ✅ OPZIONE B: Toggle Mostra/Chiudi del messaggio in admin
+  adminList.addEventListener("click", (ev) => {
+    const t = ev.target;
+    if(!t?.classList?.contains("msgToggle")) return;
+
+    const row = t.closest(".adminRow");
+    const span = row?.querySelector(".msgText");
+    if(!span) return;
+
+    const full = decodeURIComponent(span.getAttribute("data-full") || "");
+    const isOpen = span.getAttribute("data-open") === "1";
+
+    if(isOpen){
+      const short = full.slice(0,120) + (full.length > 120 ? "…" : "");
+      span.textContent = short;
+      span.setAttribute("data-open", "0");
+      t.textContent = "Mostra";
+      t.title = "Mostra messaggio";
+    } else {
+      span.textContent = full;
+      span.setAttribute("data-open", "1");
+      t.textContent = "Chiudi";
+      t.title = "Chiudi messaggio";
+    }
+  });
+
   function adminShortcut(){
     if(!getAdminKey()){
       const k = prompt("Admin — Inserisci la chiave:");
@@ -1677,7 +1722,3 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
-
-
-
-
