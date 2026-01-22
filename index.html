@@ -1224,15 +1224,22 @@ document.addEventListener("DOMContentLoaded", () => {
   updateParticipationUI();
 
   function setFormDisabled(disabled){
-    const form = document.getElementById("rsvpForm");
-    if(!form) return;
-    const elements = form.querySelectorAll("input, select, textarea, button");
-    elements.forEach(el => {
-      if(el.closest(".thanksModal")) return;
-      if(el.closest(".adminPanel")) return;
-      el.disabled = disabled;
-    });
-  }
+  const form = document.getElementById("rsvpForm");
+  if(!form) return;
+
+  const elements = form.querySelectorAll("input, select, textarea, button");
+
+  elements.forEach(el => {
+    // ✅ Lascia sempre disponibile "Un pensiero per gli sposi"
+    if (el.id === "giftBtn") return;
+
+    // (le tue esclusioni, le lascio intatte)
+    if(el.closest(".thanksModal")) return;
+    if(el.closest(".adminPanel")) return;
+
+    el.disabled = disabled;
+  });
+}
 
   // =======================
   // --- SALVATAGGIO (POST) con retry 409 ---
@@ -1670,6 +1677,7 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 </body>
 </html>
+
 
 
 
